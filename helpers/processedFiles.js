@@ -18,7 +18,6 @@ const processedFiles = () => {
       Buffer.from(final_img.image).toString("base64");
 
     fs.unlinkSync(filePath);
-
     return imgURL;
   });
 
