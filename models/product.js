@@ -5,8 +5,36 @@ const { handleSaveErrors } = require("../helpers");
 
 const productSchema = new Schema(
   {
+    nameProduct: {
+      type: String,
+      required: true,
+    },
+    mainPhotoUrl: {
+      type: String,
+      required: true,
+    },
+    additionalPhotoUrl: {
+      type: [String],
+      required: true,
+    },
+    brendName: {
+      type: String,
+      required: true,
+    },
+    condition: {
+      type: String,
+      required: true,
+    },
+    section: {
+      type: String,
+      required: true,
+    },
     category: {
       type: String,
+      required: true,
+    },
+    quantity: {
+      type: Number,
       required: true,
     },
     date: {
@@ -17,21 +45,34 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
-    files: {
-      type: [String],
+    keyWords: {
+      type: String,
+      required: true,
+    },
+    vip: {
+      type: String,
       required: true,
     },
     price: {
       type: Number,
       required: true,
     },
-    shopName: {
-      type: String,
-      required: true,
-    },
-    userId: {
+    owner: {
       type: Schema.Types.ObjectId,
       required: true,
+    },
+    size: {
+      type: [],
+      default: [],
+    },
+    userLikes: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+      default: [],
     },
   },
   { minimize: false }
@@ -42,14 +83,31 @@ productSchema.post("save", handleSaveErrors);
 const Product = model("product", productSchema);
 
 const addProductSchema = Joi.object({
+  nameProduct: Joi.string().required(),
+  brendName: Joi.string().required(),
+  condition: Joi.string().required(),
+  section: Joi.string().required(),
   category: Joi.string().required(),
+  quantity: Joi.number().required(),
   date: Joi.date().required(),
   description: Joi.string().required(),
-  files: Joi.any().meta({ index: true }),
-  //   files: Joi.array().items(Joi.string()).required(),
+  keyWords: Joi.string().required(),
+  vip: Joi.string().required(),
+  size: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string().required(),
+        value: Joi.string().required(),
+      })
+    )
+    .required(),
+  file: Joi.string().uri().required(),
+  files: Joi.array().items(Joi.string()).required(),
+  // files: Joi.any().meta({ index: true }),
   price: Joi.number().required(),
   shopName: Joi.string().required(),
-  userId: Joi.string().required(),
+  owner: Joi.string().required(),
+  mainFileName: Joi.string().required(),
 });
 
 const deleteProductSchema = Joi.object({});

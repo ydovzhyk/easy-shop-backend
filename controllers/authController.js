@@ -21,6 +21,7 @@ const register = async (req, res) => {
     email,
     passwordHash,
     userAddress: "",
+    userProducts: [],
     userBasket: [],
     userLikes: [],
     orders: [],

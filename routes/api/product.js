@@ -20,6 +20,8 @@ router.post(
   ctrlWrapper(ctrl.addProductController)
 );
 
+router.get("/", authorize, ctrlWrapper(ctrl.getProductsController));
+
 // deleteProduct
 // router.post(
 //   "/delete",

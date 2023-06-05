@@ -1,44 +1,57 @@
 const { User } = require("../models/user");
-const { Product } = require("../models/session");
+const { Product } = require("../models/product");
 const { processedFiles } = require("../helpers");
 
 const { RequestError } = require("../helpers");
 
 const addProductController = async (req, res) => {
   const { _id: owner } = req.user;
+  const {
+    nameProduct,
+    brendName,
+    condition,
+    section,
+    vip,
+    quantity,
+    keyWords,
+    size,
+    category,
+    mainFileName,
+    description,
+    price,
+    date,
+  } = req.body;
+  const files = req.files;
+  const filesUrls = await processedFiles(files, mainFileName);
 
-  const { category, shopName, description, price, userId, date } = req.body;
-  console.log(category);
+  const newProduct = await Product.create({
+    nameProduct: nameProduct,
+    brendName: brendName,
+    condition: condition,
+    category: category,
+    section: section,
+    vip: vip,
+    quantity: quantity,
+    keyWords: keyWords,
+    size: JSON.parse(size),
+    date: date,
+    description: description,
+    price: price,
+    owner: owner,
+    mainPhotoUrl: filesUrls.mainFileURL,
+    additionalPhotoUrl: filesUrls.additionalFilesURL,
+    userLikes: [],
+  });
 
-  const files = await processedFiles();
-  console.log(files);
-  // const user = await User.findOne(owner);
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: owner },
+    { $push: { userProducts: newProduct._id } },
+    { new: true }
+  );
 
-  // const { date, month, year, sex, email, firstName, lastName } = req.body;
-  // const avatar = req.file;
-  //   const { username, email, password } = req.body;
-  //   const user = await User.findOne({ email });
-  //   if (user) {
-  //     throw RequestError(409, "Email in use");
-  //   }
+  console.log(updatedUser);
 
-  //   const passwordHash = await bcrypt.hash(password, 10);
-
-  //   const newUser = await User.create({
-  //     username,
-  //     email,
-  //     passwordHash,
-  //     userAddress: "",
-  //     userBasket: [],
-  //     userLikes: [],
-  //     orders: [],
-  //   });
-
-  //   res.status(201).send({
-  //     username: newUser.username,
-  //     email: newUser.email,
-  //     id: newUser._id,
-  //   });
+  res.status(200).json({ message: "Product added successfully" });
 };
 
 const deleteProductController = async (req, res) => {
@@ -49,7 +62,13 @@ const deleteProductController = async (req, res) => {
   res.status(200).json({ message: "user deleted" });
 };
 
+const getProductsController = async (req, res) => {
+  const products = await Product.find();
+  res.status(200).json(products);
+};
+
 module.exports = {
   addProductController,
   deleteProductController,
+  getProductsController,
 };

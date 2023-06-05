@@ -28,9 +28,10 @@ const userSchema = new Schema(
     userAddress: {
       type: String,
     },
+    userProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     userBasket: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     userLikes: [{ type: Schema.Types.ObjectId, ref: "Product" }],
-    orders: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
+    userOrders: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
   },
   { minimize: false }
 );

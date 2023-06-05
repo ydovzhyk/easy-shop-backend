@@ -1,27 +1,59 @@
 const fs = require("fs");
-const path = require("path");
+const { promisify } = require("util");
 
-const tempDir = "../temp"; // Вкажіть шлях до тимчасової папки
-const tempFiles = fs.readdirSync(tempDir);
+const readFileAsync = promisify(fs.readFile);
+const unlinkAsync = promisify(fs.unlink);
 
-const processedFiles = () => {
-  console.log("Зайшли обрибити файли");
-  const imgURLs = tempFiles.map((file) => {
-    const filePath = path.join(tempDir, file);
-    const img = fs.readFileSync(filePath, "base64");
-    const final_img = {
-      contentType: "image/png",
-      image: Buffer.from(img, "base64"),
-    };
-    const imgURL =
-      "data:image/png;base64," +
-      Buffer.from(final_img.image).toString("base64");
-
-    fs.unlinkSync(filePath);
+const processFile = async (file) => {
+  try {
+    const data = await readFileAsync(file.path, "base64");
+    const imgURL = `data:${file.mimetype};base64,${data}`;
+    await unlinkAsync(file.path);
     return imgURL;
-  });
+  } catch (err) {
+    throw err;
+  }
+};
 
-  return imgURLs;
+const processedFiles = async (files, mainFileName) => {
+  let mainFileURL = null;
+  let additionalFilesUrls = [];
+  const arrLenght = files.length;
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+
+    if (mainFileName && file.originalname === mainFileName) {
+      mainFileURL = await processFile(file);
+    } else {
+      additionalFilesUrls.push(await processFile(file));
+    }
+  }
+
+  const result = {
+    mainFileURL: mainFileURL,
+    additionalFilesURL: additionalFilesUrls,
+  };
+  return result;
 };
 
 module.exports = processedFiles;
+
+// if (!mainFileName && i === 0) {
+//   console.log("Умова 1");
+//   mainFileURL = await processFile(file);
+// } else {
+//   additionalFilesUrls.push(await processFile(file));
+// }
+
+// if (mainFileName && file.originalname === mainFileName) {
+//   console.log("Умова 2");
+//   mainFileURL = await processFile(file);
+// } else {
+//   additionalFilesUrls.push(await processFile(file));
+// }
+
+// if (files.length === 1 && file.originalname === mainFileName) {
+//   console.log("Умова 3");
+//   mainFileURL = await processFile(file);
+// }
