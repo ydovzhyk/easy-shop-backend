@@ -65,8 +65,15 @@ const getProductsController = async (req, res) => {
   res.status(200).json(products);
 };
 
+const getUserProductsController = async (req, res) => {
+  const { _id: userId } = req.body;
+  const products = await Product.find({ owner: userId });
+  res.status(200).json(products);
+};
+
 module.exports = {
   addProductController,
   deleteProductController,
   getProductsController,
+  getUserProductsController,
 };

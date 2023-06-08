@@ -22,6 +22,13 @@ router.post(
 
 router.get("/", ctrlWrapper(ctrl.getProductsController));
 
+router.get(
+  "/user-products",
+  authorize,
+  validateBody(schemas.userProducts),
+  ctrlWrapper(ctrl.getUserProductsController)
+);
+
 // deleteProduct
 // router.post(
 //   "/delete",

@@ -103,7 +103,6 @@ const addProductSchema = Joi.object({
     .required(),
   file: Joi.string().uri().required(),
   files: Joi.array().items(Joi.string()).required(),
-  // files: Joi.any().meta({ index: true }),
   price: Joi.number().required(),
   shopName: Joi.string().required(),
   owner: Joi.string().required(),
@@ -111,6 +110,8 @@ const addProductSchema = Joi.object({
 });
 
 const deleteProductSchema = Joi.object({});
+
+const userProducts = Joi.object({ _id: Joi.string() });
 
 const schemas = {
   addProductSchema,

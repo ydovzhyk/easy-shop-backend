@@ -18,14 +18,13 @@ const processFile = async (file) => {
 const processedFiles = async (files, mainFileName) => {
   let mainFileURL = null;
   let additionalFilesUrls = [];
-  const arrLenght = files.length;
-  console.log("mainFileName", mainFileName);
-  console.log("arrLenght", arrLenght);
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
 
     if (mainFileName && file.originalname === mainFileName) {
+      mainFileURL = await processFile(file);
+    } else if (!mainFileName || (i === 0 && mainFileName)) {
       mainFileURL = await processFile(file);
     } else {
       additionalFilesUrls.push(await processFile(file));
@@ -40,22 +39,3 @@ const processedFiles = async (files, mainFileName) => {
 };
 
 module.exports = processedFiles;
-
-// if (!mainFileName && i === 0) {
-//   console.log("Умова 1");
-//   mainFileURL = await processFile(file);
-// } else {
-//   additionalFilesUrls.push(await processFile(file));
-// }
-
-// if (mainFileName && file.originalname === mainFileName) {
-//   console.log("Умова 2");
-//   mainFileURL = await processFile(file);
-// } else {
-//   additionalFilesUrls.push(await processFile(file));
-// }
-
-// if (files.length === 1 && file.originalname === mainFileName) {
-//   console.log("Умова 3");
-//   mainFileURL = await processFile(file);
-// }

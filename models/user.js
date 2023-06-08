@@ -55,6 +55,9 @@ const userSchema = new Schema(
     about: {
       type: String,
     },
+    dateCreate: {
+      type: Date,
+    },
     userProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     userBasket: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     userLikes: [{ type: Schema.Types.ObjectId, ref: "Product" }],

@@ -24,12 +24,17 @@ const register = async (req, res) => {
   //   await user.save(); // зберегти оновленого користувача
   // }
 
+  const date = new Date();
+  const today = `${date.getFullYear()}-${
+    date.getMonth() + 1
+  }-${date.getDate()}`;
+
   const newUser = await User.create({
     username,
     email,
     passwordHash,
     userAvatar,
-    userAddress: "",
+    dateCreate: today,
     userProducts: [],
     userBasket: [],
     userLikes: [],
@@ -66,14 +71,6 @@ const login = async (req, res) => {
     uid: user._id,
   });
 
-  const date = new Date();
-  const today = `${date.getFullYear()}-${
-    date.getMonth() + 1
-  }-${date.getDate()}`;
-
-  // const todaySummary = await Summary.findOne({ date: today });
-
-  // if (!todaySummary) {
   return res.status(200).send({
     accessToken,
     refreshToken,
@@ -88,7 +85,6 @@ const login = async (req, res) => {
       id: user._id,
     },
   });
-  // }
 };
 
 const refresh = async (req, res, next) => {
@@ -140,7 +136,6 @@ const getUserController = async (req, res) => {
 
 const updateUserSettigsController = async (req, res) => {
   const { _id } = req.user;
-  console.log(_id);
   const {
     userAvatar,
     cityName,
@@ -173,7 +168,6 @@ const updateUserSettigsController = async (req, res) => {
     { new: true }
   );
 
-  console.log(updatedUser);
   res.status(200).json(updatedUser);
 };
 
