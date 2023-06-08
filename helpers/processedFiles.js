@@ -19,6 +19,8 @@ const processedFiles = async (files, mainFileName) => {
   let mainFileURL = null;
   let additionalFilesUrls = [];
   const arrLenght = files.length;
+  console.log("mainFileName", mainFileName);
+  console.log("arrLenght", arrLenght);
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];

@@ -49,8 +49,6 @@ const addProductController = async (req, res) => {
     { new: true }
   );
 
-  console.log(updatedUser);
-
   res.status(200).json({ message: "Product added successfully" });
 };
 

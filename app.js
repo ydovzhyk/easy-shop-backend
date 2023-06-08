@@ -1,7 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
-// const bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 require("dotenv").config();
 
 const authRouter = require("./routes/api/auth");
@@ -15,8 +15,8 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 app.use("/static", express.static("public")); // For access a file
-// app.use(bodyParser.json({ limit: "100mb" }));
-// app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use("/auth", authRouter);
 app.use("/product", productRouter);

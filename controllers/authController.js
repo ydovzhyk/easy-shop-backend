@@ -8,7 +8,7 @@ const { SECRET_KEY, REFRESH_SECRET_KEY } = process.env;
 const { RequestError } = require("../helpers");
 
 const register = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, userAvatar } = req.body;
   const user = await User.findOne({ email });
   if (user) {
     throw RequestError(409, "Email in use");
@@ -16,10 +16,19 @@ const register = async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
+  // const users = await User.find();
+
+  // for (const user of users) {
+  //   user.userAvatar = userAvatar; // оновлене значення
+
+  //   await user.save(); // зберегти оновленого користувача
+  // }
+
   const newUser = await User.create({
     username,
     email,
     passwordHash,
+    userAvatar,
     userAddress: "",
     userProducts: [],
     userBasket: [],
@@ -31,6 +40,7 @@ const register = async (req, res) => {
     username: newUser.username,
     email: newUser.email,
     id: newUser._id,
+    userAvatar: newUser.userAvatar,
   });
 };
 
@@ -128,6 +138,45 @@ const getUserController = async (req, res) => {
   res.status(200).json(result);
 };
 
+const updateUserSettigsController = async (req, res) => {
+  const { _id } = req.user;
+  console.log(_id);
+  const {
+    userAvatar,
+    cityName,
+    email,
+    firstName,
+    surName,
+    houseNamber,
+    streetName,
+    secondName,
+    sex,
+    tel,
+    about,
+  } = req.body;
+  const user = await User.findOne({ _id });
+  const updatedUser = await User.findOneAndUpdate(
+    { _id },
+    {
+      userAvatar: userAvatar ? userAvatar : user.userAvatar,
+      cityName: cityName ? cityName : user.cityName,
+      email: email ? email : user.email,
+      firstName: firstName ? firstName : user.firstName,
+      surName: surName ? surName : user.surName,
+      houseNamber: houseNamber ? houseNamber : user.houseNamber,
+      streetName: streetName ? streetName : user.streetName,
+      secondName: secondName ? secondName : user.secondName,
+      sex: sex ? sex : user.sex,
+      tel: tel ? tel : user.tel,
+      about: about ? about : user.about,
+    },
+    { new: true }
+  );
+
+  console.log(updatedUser);
+  res.status(200).json(updatedUser);
+};
+
 module.exports = {
   register,
   login,
@@ -135,4 +184,5 @@ module.exports = {
   deleteUserController,
   refresh,
   getUserController,
+  updateUserSettigsController,
 };

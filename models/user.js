@@ -20,12 +20,39 @@ const userSchema = new Schema(
       unique: true,
       match: emailRegexp,
     },
+    userAvatar: {
+      type: String,
+    },
     passwordHash: {
       type: String,
       required: [true, "Set password for user"],
       minlength: 6,
     },
-    userAddress: {
+    cityName: {
+      type: String,
+    },
+    firstName: {
+      type: String,
+    },
+    surName: {
+      type: String,
+    },
+    houseNamber: {
+      type: String,
+    },
+    streetName: {
+      type: String,
+    },
+    secondName: {
+      type: String,
+    },
+    sex: {
+      type: String,
+    },
+    tel: {
+      type: String,
+    },
+    about: {
       type: String,
     },
     userProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
@@ -44,6 +71,7 @@ const registerSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
   username: Joi.string().required(),
+  userAvatar: Joi.string().required(),
 });
 
 const loginSchema = Joi.object({
@@ -55,10 +83,25 @@ const refreshTokenSchema = Joi.object({
   sid: Joi.string().required(),
 });
 
+const updateUserSettingsSchema = Joi.object({
+  email: Joi.string().pattern(emailRegexp),
+  userAvatar: Joi.alternatives().try(Joi.string(), Joi.object()),
+  cityName: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+  firstName: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+  surName: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+  houseNamber: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+  streetName: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+  secondName: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+  sex: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+  tel: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+  about: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
+});
+
 const schemas = {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
+  updateUserSettingsSchema,
 };
 
 module.exports = {
