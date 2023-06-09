@@ -97,8 +97,12 @@ const getProductsQueryController = async (req, res) => {
     }
     return unique;
   }, []);
-
-  res.status(200).json(uniqueProducts);
+  console.log(uniqueProducts);
+  if (uniqueProducts.length === 0) {
+    res.status(200).json([]);
+  } else {
+    res.status(200).json(uniqueProducts);
+  }
 };
 
 module.exports = {
