@@ -71,9 +71,40 @@ const getUserProductsController = async (req, res) => {
   res.status(200).json(products);
 };
 
+// get products by Query
+const getProductsQueryController = async (req, res) => {
+  const { search } = req.query;
+
+  const searchKeywords = search.toLowerCase().split(" ");
+
+  const regexQueries = searchKeywords.map((keyword) => ({
+    $or: [
+      { nameProduct: { $regex: keyword, $options: "i" } },
+      { brendName: { $regex: keyword, $options: "i" } },
+      { condition: { $regex: keyword, $options: "i" } },
+      { section: { $regex: keyword, $options: "i" } },
+      { category: { $regex: keyword, $options: "i" } },
+      { description: { $regex: keyword, $options: "i" } },
+      { keyWords: { $regex: keyword, $options: "i" } },
+    ],
+  }));
+
+  const filteredProducts = await Product.find({ $and: regexQueries }).lean();
+
+  const uniqueProducts = filteredProducts.reduce((unique, product) => {
+    if (!unique.find((item) => item._id === product._id)) {
+      unique.push(product);
+    }
+    return unique;
+  }, []);
+
+  res.status(200).json(uniqueProducts);
+};
+
 module.exports = {
   addProductController,
   deleteProductController,
   getProductsController,
   getUserProductsController,
+  getProductsQueryController,
 };

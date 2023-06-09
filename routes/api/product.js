@@ -22,6 +22,10 @@ router.post(
 
 router.get("/", ctrlWrapper(ctrl.getProductsController));
 
+//get products by Query
+router.get("/search", ctrlWrapper(ctrl.getProductsQueryController));
+
+// get user products
 router.get(
   "/user-products",
   authorize,
