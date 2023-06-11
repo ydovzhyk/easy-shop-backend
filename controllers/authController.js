@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const { User } = require("../models/user");
 const { Session } = require("../models/session");
-const { SECRET_KEY, REFRESH_SECRET_KEY } = process.env;
+const { SECRET_KEY, REFRESH_SECRET_KEY, BASE_URL, FRONTEND_URL } = process.env;
 
 const { RequestError } = require("../helpers");
 
@@ -78,10 +78,6 @@ const login = async (req, res) => {
     user: {
       email: user.email,
       username: user.username,
-      userAddress: user.userAddress,
-      userBasket: user.userBasket,
-      userLikes: user.userLikes,
-      orders: user.orders,
       id: user._id,
     },
   });
@@ -171,6 +167,30 @@ const updateUserSettigsController = async (req, res) => {
   res.status(200).json(updatedUser);
 };
 
+const googleAuthController = async (req, res) => {
+  const { _id: id } = req.user;
+  const paylaod = { id };
+  console.log(paylaod);
+
+  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
+  const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
+    expiresIn: "24h",
+  });
+  const newSession = await Session.create({
+    uid: id,
+  });
+
+  // await User.findByIdAndUpdate(id, {
+  //   accessToken,
+  //   refreshToken,
+  //   sid: newSession._id,
+  // });
+
+  res.redirect(
+    `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+  );
+};
+
 module.exports = {
   register,
   login,
@@ -179,4 +199,5 @@ module.exports = {
   refresh,
   getUserController,
   updateUserSettigsController,
+  googleAuthController,
 };

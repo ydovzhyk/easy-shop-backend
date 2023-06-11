@@ -67,7 +67,9 @@ const getProductsController = async (req, res) => {
 
 const getUserProductsController = async (req, res) => {
   const { _id: userId } = req.body;
+  console.log(userId);
   const products = await Product.find({ owner: userId });
+  console.log(products);
   res.status(200).json(products);
 };
 
@@ -105,10 +107,29 @@ const getProductsQueryController = async (req, res) => {
   }
 };
 
+//get Product by Vip
+const getVipProductsController = async (req, res) => {
+  const page = req.query.page || 1; // Поточна сторінка
+  const limit = 5; // Кількість карточок на сторінку
+
+  const count = await Product.countDocuments({ vip: "Так" }); // Кількість всіх продуктів, що відповідають критерію
+
+  const totalPages = Math.ceil(count / limit); // Загальна кількість сторінок
+  const skip = (page - 1) * limit; // Кількість продуктів, які потрібно пропустити
+
+  const products = await Product.find({ vip: "Так" }).skip(skip).limit(limit);
+
+  res.status(200).json({
+    products,
+    totalPages, // Додано загальну кількість сторінок у відповідь
+  });
+};
+
 module.exports = {
   addProductController,
   deleteProductController,
   getProductsController,
   getUserProductsController,
   getProductsQueryController,
+  getVipProductsController,
 };

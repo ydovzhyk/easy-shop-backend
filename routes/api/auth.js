@@ -7,6 +7,7 @@ const {
   isValidId,
   authorize,
   authenticateRefresh,
+  passport,
 } = require("../../middlewares");
 const { schemas } = require("../../models/user");
 const router = express.Router();
@@ -46,6 +47,19 @@ router.post(
   authorize,
   validateBody(schemas.updateUserSettingsSchema),
   ctrlWrapper(ctrl.updateUserSettigsController)
+);
+// google auth
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    session: false,
+    // failureRedirect: "/login-failed",
+  }),
+  ctrl.googleAuthController
 );
 
 module.exports = router;

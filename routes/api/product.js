@@ -33,6 +33,8 @@ router.get(
   ctrlWrapper(ctrl.getUserProductsController)
 );
 
+router.get("/vip", ctrlWrapper(ctrl.getVipProductsController));
+
 // deleteProduct
 // router.post(
 //   "/delete",
