@@ -12,7 +12,11 @@ const app = express();
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(logger(formatsLogger));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://ydovzhyk.github.io"],
+  })
+);
 app.use(express.json());
 app.use("/static", express.static("public")); // For access a file
 app.use(bodyParser.json({ limit: "10mb" }));
