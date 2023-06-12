@@ -14,8 +14,6 @@ if (process.env.NODE_ENV === "production") {
   callbackURL = `${BASE_URL}/google/callback`;
 }
 
-console.log(callbackURL);
-
 const googleParams = {
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
