@@ -1,4 +1,5 @@
 const express = require("express");
+
 const { ctrlWrapper } = require("../../helpers");
 const ctrl = require("../../controllers/authController");
 
@@ -12,13 +13,13 @@ const rememberReferer = (req, res, next) => {
 
 // google auth
 router.get(
-  "/google",
+  "/",
   rememberReferer,
   passport.authenticate("google", { scope: ["email", "profile"] })
 );
 
 router.get(
-  "/google/callback",
+  "/callback",
   passport.authenticate("google", { session: false }),
   ctrlWrapper(ctrl.googleAuthController)
 );

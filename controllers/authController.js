@@ -123,6 +123,7 @@ const deleteUserController = async (req, res) => {
 
 const getUserController = async (req, res) => {
   const { _id } = req.user;
+  console.log(req.body);
   const result = await User.findOne({ _id });
   res.status(200).json(result);
 };
