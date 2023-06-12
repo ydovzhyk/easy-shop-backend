@@ -67,9 +67,8 @@ const getProductsController = async (req, res) => {
 
 // get User products
 const getUserProductsController = async (req, res) => {
-  const { _id: userId } = req.body;
+  const { _id: userId } = req.user;
   const products = await Product.find({ owner: userId });
-  console.log(products);
   res.status(200).json(products);
 };
 
