@@ -165,7 +165,7 @@ const updateUserSettigsController = async (req, res) => {
 };
 
 const googleAuthController = async (req, res) => {
-  const { _id: id } = req.user;
+  const { _id: id, referer } = req.user;
   const paylaod = { id };
 
   const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
@@ -176,15 +176,8 @@ const googleAuthController = async (req, res) => {
     uid: id,
   });
 
-  const redirectURL =
-    req.query.from === "google"
-      ? `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
-      : `${FRONTEND_URL_GIT}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`;
-
-  console.log(redirectURL);
-  // res.redirect(redirectURL);
   res.redirect(
-    `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+    `${referer}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
   );
 };
 

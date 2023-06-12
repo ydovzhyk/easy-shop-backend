@@ -5,20 +5,17 @@ const ctrl = require("../../controllers/authController");
 const { passport } = require("../../middlewares");
 const router = express.Router();
 
-// google auth
-// router.get(
-//   "/google",
-//   passport.authenticate("google", { scope: ["email", "profile"] })
-// );
+const rememberReferer = (req, res, next) => {
+  req.session.referer = req.headers.referer || "/";
+  next();
+};
 
-router.get("/google", (req, res, next) => {
-  // Додайте параметр до URL-адреси, щоб передати інформацію про посилання або тип запиту
-  const redirectURL = `${req.originalUrl}?from=google`;
-  passport.authenticate("google", {
-    scope: ["email", "profile"],
-    callbackURL: redirectURL,
-  })(req, res, next);
-});
+// google auth
+router.get(
+  "/google",
+  rememberReferer,
+  passport.authenticate("google", { scope: ["email", "profile"] })
+);
 
 router.get(
   "/google/callback",

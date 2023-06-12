@@ -37,6 +37,11 @@ const googleCallback = async (
     const { email, given_name, picture } = profile;
     const user = await User.findOne({ email });
     if (user) {
+      await User.findOneAndUpdate(
+        { email },
+        { referer: req.session.referer },
+        { new: true }
+      );
       return done(null, user);
     }
     const password = await bcrypt.hash(shortid.generate(), 10);
@@ -46,6 +51,7 @@ const googleCallback = async (
       username: given_name,
       userAvatar: picture,
       dateCreate: today,
+      referer: req.session.referer,
     });
     return done(null, newUser);
   } catch (error) {
