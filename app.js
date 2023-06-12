@@ -1,13 +1,13 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
-const session = require("express-session");
+// const session = require("express-session");
 require("dotenv").config();
 
 const authRouter = require("./routes/api/auth");
 const googleRouter = require("./routes/api/google");
 const productRouter = require("./routes/api/product");
-const { DB_HOST } = process.env;
+// const { DB_HOST } = process.env;
 
 const app = express();
 
@@ -15,13 +15,13 @@ const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(logger(formatsLogger));
 app.use(cors());
-app.use(
-  session({
-    secret: `${DB_HOST}`,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+// app.use(
+//   session({
+//     secret: `${DB_HOST}`,
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// );
 
 app.use(express.json());
 app.use("/static", express.static("public")); // For access a file
