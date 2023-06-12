@@ -1,7 +1,6 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 require("dotenv").config();
 
 const authRouter = require("./routes/api/auth");
@@ -13,15 +12,24 @@ const app = express();
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(logger(formatsLogger));
-app.use(
-  cors({
-    origin: ["http://localhost:3000", "https://ydovzhyk.github.io"],
-  })
-);
+// app.use(
+//   cors({
+//     origin: ["http://localhost:3000", "https://ydovzhyk.github.io"],
+//   })
+// );
+app.use((req, res, next) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://ydovzhyk.github.io/easy-shop/",
+    "http://localhost:3000"
+  ); // Замініть на свою адресу додатку
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 app.use(express.json());
 app.use("/static", express.static("public")); // For access a file
-app.use(bodyParser.json({ limit: "10mb" }));
-app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use("/auth", authRouter);
 app.use("/product", productRouter);

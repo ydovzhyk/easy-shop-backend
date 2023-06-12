@@ -3,14 +3,8 @@ const jwt = require("jsonwebtoken");
 
 const { User } = require("../models/user");
 const { Session } = require("../models/session");
-const {
-  SECRET_KEY,
-  REFRESH_SECRET_KEY,
-  BASE_URL,
-  FRONTEND_URL,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-} = process.env;
+const { SECRET_KEY, REFRESH_SECRET_KEY, FRONTEND_URL, FRONTEND_URL_GIT } =
+  process.env;
 
 const { RequestError } = require("../helpers");
 
@@ -182,10 +176,13 @@ const googleAuthController = async (req, res) => {
     uid: id,
   });
 
-  console.log("accessToken", accessToken);
-  console.log("refreshToken", refreshToken);
-  console.log("sid", newSession._id);
+  const redirectURL =
+    req.query.from === "google"
+      ? `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+      : `${FRONTEND_URL_GIT}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`;
 
+  console.log(redirectURL);
+  // res.redirect(redirectURL);
   res.redirect(
     `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
   );
