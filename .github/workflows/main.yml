@@ -26,7 +26,7 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
           echo "REFRESH_SECRET_KEY=${{ secrets.REFRESH_SECRET_KEY }}" >> .env
-          echo "GOOGLE_CLIENT_ID"=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
           echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
           echo "BASE_URL_HEROKU=${{ secrets.BASE_URL_HEROKU }}" >> .env
