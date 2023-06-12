@@ -72,11 +72,7 @@ const login = async (req, res) => {
     accessToken,
     refreshToken,
     sid: newSession._id,
-    user: {
-      email: user.email,
-      username: user.username,
-      id: user._id,
-    },
+    user,
   });
 };
 
@@ -123,9 +119,14 @@ const deleteUserController = async (req, res) => {
 
 const getUserController = async (req, res) => {
   const { _id } = req.user;
-  console.log(req.body);
-  const result = await User.findOne({ _id });
-  res.status(200).json(result);
+  const { accessToken, refreshToken, sid } = req.body;
+  const user = await User.findOne({ _id });
+  return res.status(200).send({
+    accessToken,
+    refreshToken,
+    sid,
+    user,
+  });
 };
 
 const updateUserSettigsController = async (req, res) => {
