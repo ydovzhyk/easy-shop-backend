@@ -65,9 +65,9 @@ const getProductsController = async (req, res) => {
   res.status(200).json(products);
 };
 
+// get User products
 const getUserProductsController = async (req, res) => {
   const { _id: userId } = req.body;
-  console.log(userId);
   const products = await Product.find({ owner: userId });
   console.log(products);
   res.status(200).json(products);
@@ -99,7 +99,6 @@ const getProductsQueryController = async (req, res) => {
     }
     return unique;
   }, []);
-  console.log(uniqueProducts);
   if (uniqueProducts.length === 0) {
     res.status(200).json([]);
   } else {
