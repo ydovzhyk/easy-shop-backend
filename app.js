@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 
 const authRouter = require("./routes/api/auth");
+const googleRouter = require("./routes/api/google");
 const productRouter = require("./routes/api/product");
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use("/auth", authRouter);
 app.use("/product", productRouter);
+app.use("/", googleRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });

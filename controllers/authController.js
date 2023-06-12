@@ -3,7 +3,14 @@ const jwt = require("jsonwebtoken");
 
 const { User } = require("../models/user");
 const { Session } = require("../models/session");
-const { SECRET_KEY, REFRESH_SECRET_KEY, BASE_URL, FRONTEND_URL } = process.env;
+const {
+  SECRET_KEY,
+  REFRESH_SECRET_KEY,
+  BASE_URL,
+  FRONTEND_URL,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+} = process.env;
 
 const { RequestError } = require("../helpers");
 
@@ -35,10 +42,6 @@ const register = async (req, res) => {
     passwordHash,
     userAvatar,
     dateCreate: today,
-    userProducts: [],
-    userBasket: [],
-    userLikes: [],
-    orders: [],
   });
 
   res.status(201).send({
@@ -170,7 +173,6 @@ const updateUserSettigsController = async (req, res) => {
 const googleAuthController = async (req, res) => {
   const { _id: id } = req.user;
   const paylaod = { id };
-  console.log(paylaod);
 
   const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
   const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
@@ -180,11 +182,9 @@ const googleAuthController = async (req, res) => {
     uid: id,
   });
 
-  // await User.findByIdAndUpdate(id, {
-  //   accessToken,
-  //   refreshToken,
-  //   sid: newSession._id,
-  // });
+  console.log("accessToken", accessToken);
+  console.log("refreshToken", refreshToken);
+  console.log("sid", newSession._id);
 
   res.redirect(
     `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`

@@ -1,6 +1,7 @@
 const passport = require("passport");
 const { Strategy } = require("passport-google-oauth2");
 const bcrypt = require("bcrypt");
+const shortid = require("shortid");
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FRONTEND_URL, BASE_URL } =
   process.env;
 
@@ -9,7 +10,7 @@ const { User } = require("../models/user");
 const googleParams = {
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
-  callbackURL: `${BASE_URL}/api/auth/google/callback`,
+  callbackURL: `${BASE_URL}/google/callback`,
   passReqToCallback: true,
 };
 
@@ -20,20 +21,24 @@ const googleCallback = async (
   profile,
   done
 ) => {
-  console.log(profile);
   try {
-    const { email, name, picture } = profile;
+    const date = new Date();
+    const today = `${date.getFullYear()}-${
+      date.getMonth() + 1
+    }-${date.getDate()}`;
+
+    const { email, given_name, picture } = profile;
     const user = await User.findOne({ email });
-    const prePassword = "u4Dbx4m5x86_C87";
     if (user) {
       return done(null, user);
     }
-    const password = await bcrypt.hash(prePassword, 10);
+    const password = await bcrypt.hash(shortid.generate(), 10);
     const newUser = await User.create({
-      email,
-      password,
-      username: name,
+      email: email,
+      passwordHash: password,
+      username: given_name,
       userAvatar: picture,
+      dateCreate: today,
     });
     return done(null, newUser);
   } catch (error) {
