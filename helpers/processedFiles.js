@@ -28,7 +28,8 @@ const authenticate = async () => {
 };
 
 const uploadFileToDrive = async (file, auth) => {
-  // get folderID on Google Drive
+  // get folderId on Google Drive
+  // const folderId = "1e5T56uSL0YCl-6dkqTKkBUj1MdpXJKnY";
   let folderId = null;
   const folderName = "easy-shoop";
   const drive = google.drive({ version: "v3", auth });
@@ -41,12 +42,12 @@ const uploadFileToDrive = async (file, auth) => {
   } else {
     folderId = null;
   }
+
   // upload file to Google Drive
   try {
     const fileName = `${uuidv4()}_${file.originalname}`;
     const filePath = file.path;
     const fileMimeType = file.mimetype;
-    // const folderId = "1e5T56uSL0YCl-6dkqTKkBUj1MdpXJKnY";
     const drive = google.drive({ version: "v3", auth });
     const { data } = await drive.files.create({
       media: {
@@ -57,9 +58,13 @@ const uploadFileToDrive = async (file, auth) => {
         name: fileName,
         parents: [folderId],
       },
-      fields: "id,name,webViewLink",
+      fields: "id,name",
     });
-    return data.webViewLink;
+
+    // create direct Link to image
+    const fileId = data.id;
+    const imageLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
+    return imageLink;
   } catch (error) {
     console.error("Error uploading file:", error);
     throw error;
