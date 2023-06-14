@@ -68,8 +68,23 @@ const getProductsController = async (req, res) => {
 // get User products
 const getUserProductsController = async (req, res) => {
   const { _id: userId } = req.user;
-  const products = await Product.find({ owner: userId });
-  res.status(200).json(products);
+  const page = req.query.page || 1;
+  const limit = 5;
+
+  const count = await Product.countDocuments({ owner: userId });
+
+  const totalPages = Math.ceil(count / limit);
+  const skip = (page - 1) * limit;
+
+  const products = await Product.find({ owner: userId })
+    .skip(skip)
+    .limit(limit);
+
+  res.status(200).json({
+    products,
+    totalPages,
+    totalUserPoducts: count,
+  });
 };
 
 // get products by Query
