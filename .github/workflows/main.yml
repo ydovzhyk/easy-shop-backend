@@ -32,6 +32,10 @@ jobs:
           echo "BASE_URL_HEROKU=${{ secrets.BASE_URL_HEROKU }}" >> .env
           echo "FRONTEND_URL_GIT=${{ secrets.FRONTEND_URL_GIT }}" >> .env
           echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+          echo "GOOGLE_DRIVE_REFRESH_TOKEN=${{ secrets.GOOGLE_DRIVE_REFRESH_TOKEN }}" >> .env
+          echo "GOOGLE_DRIVE_CLIENT_ID=${{ secrets.GOOGLE_DRIVE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_DRIVE_CLIENT_SECRET=${{ secrets.GOOGLE_DRIVE_CLIENT_SECRET }}" >> .env
+          echo "GOOGLE_DRIVE_REDIRECT_URI=${{ secrets.GOOGLE_DRIVE_REDIRECT_URI }}" >> .env
         working-directory: .
 
       - name: Build Docker image

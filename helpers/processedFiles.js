@@ -1,37 +1,76 @@
 const { google } = require("googleapis");
+const stream = require("stream");
 const fs = require("fs");
-const path = require("path");
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, BASE_URL_HEROKU, BASE_URL } =
-  process.env;
+// const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+const {
+  GOOGLE_DRIVE_REDIRECT_URI,
+  GOOGLE_DRIVE_CLIENT_SECRET,
+  GOOGLE_DRIVE_CLIENT_ID,
+  GOOGLE_DRIVE_REFRESH_TOKEN,
+} = process.env;
 
-// Функція для завантаження файлу на Google Диск
-const uploadFileToDrive = async (auth, file) => {
-  const drive = google.drive({ version: "v3", auth });
-
-  const folderId = "easy-shoop"; // Замініть на свій ідентифікатор папки на Google Диск
-
-  const response = await drive.files.create({
-    requestBody: {
-      name: file.originalname,
-      parents: [folderId],
-    },
-    media: {
-      mimeType: file.mimetype,
-      body: fs.createReadStream(file.path),
-    },
-  });
-
-  // Повертаємо посилання на завантажений файл
-  return response.data.webViewLink;
+const credentials = {
+  client_id: GOOGLE_DRIVE_CLIENT_ID,
+  client_secret: GOOGLE_DRIVE_CLIENT_SECRET,
+  redirect_uri: GOOGLE_DRIVE_REDIRECT_URI,
+  refresh_token: GOOGLE_DRIVE_REFRESH_TOKEN,
 };
 
-const processFile = async (auth, file) => {
+const authenticate = async () => {
+  const auth = new google.auth.OAuth2(
+    credentials.client_id,
+    credentials.client_secret,
+    credentials.redirect_uri
+  );
+  auth.setCredentials({ refresh_token: credentials.refresh_token });
+  return auth;
+};
+
+const uploadFileToDrive = async (file, auth) => {
+  // get folderID on Google Drive
+  let folderId = null;
+  const folderName = "easy-shoop";
+  const drive = google.drive({ version: "v3", auth });
+  const response = await drive.files.list({
+    q: `name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder'`,
+    fields: "files(id, name)",
+  });
+  if (response.data.files.length > 0) {
+    folderId = response.data.files[0].id;
+  } else {
+    folderId = null;
+  }
+  // upload file to Google Drive
   try {
-    const fileURL = await uploadFileToDrive(auth, file);
+    const fileName = `${uuidv4()}_${file.originalname}`;
+    const filePath = file.path;
+    const fileMimeType = file.mimetype;
+    // const folderId = "1e5T56uSL0YCl-6dkqTKkBUj1MdpXJKnY";
+    const drive = google.drive({ version: "v3", auth });
+    const { data } = await drive.files.create({
+      media: {
+        mimeType: fileMimeType,
+        body: fs.createReadStream(filePath),
+      },
+      requestBody: {
+        name: fileName,
+        parents: [folderId],
+      },
+      fields: "id,name,webViewLink",
+    });
+    return data.webViewLink;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    throw error;
+  }
+};
 
-    // Видаляємо локальний файл
+const processFile = async (file) => {
+  try {
+    const auth = await authenticate();
+    const fileURL = await uploadFileToDrive(file, auth);
     fs.unlinkSync(file.path);
-
     return fileURL;
   } catch (err) {
     throw err;
@@ -39,31 +78,21 @@ const processFile = async (auth, file) => {
 };
 
 const processedFiles = async (files, mainFileName) => {
-  const auth = await google.auth.getClient({
-    keyFile: GOOGLE_CLIENT_SECRET, // Замініть на шлях до вашого ключового файлу облікового запису служби
-    scopes: ["https://www.googleapis.com/auth/drive.file"],
-  });
-
   let mainFileURL = null;
-  let additionalFilesUrls = [];
+  let additionalFilesURLs = [];
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-
     if (mainFileName && file.originalname === mainFileName) {
-      mainFileURL = await processFile(auth, file);
+      mainFileURL = await processFile(file);
     } else if (!mainFileName || (i === 0 && mainFileName)) {
-      mainFileURL = await processFile(auth, file);
+      mainFileURL = await processFile(file);
     } else {
-      additionalFilesUrls.push(await processFile(auth, file));
+      additionalFilesURLs.push(await processFile(file));
     }
   }
 
-  const result = {
-    mainFileURL: mainFileURL,
-    additionalFilesURL: additionalFilesUrls,
-  };
-  return result;
+  return { mainFileURL, additionalFilesURLs };
 };
 
 module.exports = processedFiles;

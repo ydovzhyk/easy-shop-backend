@@ -74,6 +74,11 @@ const productSchema = new Schema(
       ],
       default: [],
     },
+    status: {
+      type: String,
+      required: true,
+      default: true,
+    },
   },
   { minimize: false }
 );
