@@ -163,7 +163,9 @@ const updateUserSettigsController = async (req, res) => {
     { new: true }
   );
 
-  res.status(200).json(updatedUser);
+  res
+    .status(200)
+    .json({ message: "Data updated successfully", user: updatedUser });
 };
 
 const googleAuthController = async (req, res) => {

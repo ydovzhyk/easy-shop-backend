@@ -22,6 +22,7 @@ const addProductController = async (req, res) => {
     date,
   } = req.body;
   const files = req.files;
+
   const filesUrls = await processedFiles(files, mainFileName);
   console.log(filesUrls);
 
