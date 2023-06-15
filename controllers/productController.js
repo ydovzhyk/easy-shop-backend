@@ -23,6 +23,7 @@ const addProductController = async (req, res) => {
   } = req.body;
   const files = req.files;
   const filesUrls = await processedFiles(files, mainFileName);
+  console.log(filesUrls);
 
   const newProduct = await Product.create({
     nameProduct: nameProduct,
@@ -39,7 +40,7 @@ const addProductController = async (req, res) => {
     price: price,
     owner: owner,
     mainPhotoUrl: filesUrls.mainFileURL,
-    additionalPhotoUrl: filesUrls.additionalFilesURL,
+    additionalPhotoUrl: filesUrls.additionalFilesURLs,
     userLikes: [],
   });
 
