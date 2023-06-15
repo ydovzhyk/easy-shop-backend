@@ -115,12 +115,9 @@ const addProductSchema = Joi.object({
 
 const deleteProductSchema = Joi.object({});
 
-const userProducts = Joi.object({ _id: Joi.string() });
-
 const schemas = {
   addProductSchema,
   deleteProductSchema,
-  userProducts,
 };
 
 module.exports = {

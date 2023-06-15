@@ -29,7 +29,6 @@ router.get("/search", ctrlWrapper(ctrl.getProductsQueryController));
 router.get(
   "/user-products",
   authorize,
-  validateBody(schemas.userProducts),
   ctrlWrapper(ctrl.getUserProductsController)
 );
 
