@@ -29,19 +29,19 @@ const authenticate = async () => {
 
 const uploadFileToDrive = async (file, auth) => {
   // get folderId on Google Drive
-  // const folderId = "1e5T56uSL0YCl-6dkqTKkBUj1MdpXJKnY";
-  let folderId = null;
-  const folderName = "easy-shoop";
-  const drive = google.drive({ version: "v3", auth });
-  const response = await drive.files.list({
-    q: `name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder'`,
-    fields: "files(id, name)",
-  });
-  if (response.data.files.length > 0) {
-    folderId = response.data.files[0].id;
-  } else {
-    folderId = null;
-  }
+  const folderId = "1e5T56uSL0YCl-6dkqTKkBUj1MdpXJKnY";
+  // let folderId = null;
+  // const folderName = "easy-shoop";
+  // const drive = google.drive({ version: "v3", auth });
+  // const response = await drive.files.list({
+  //   q: `name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder'`,
+  //   fields: "files(id, name)",
+  // });
+  // if (response.data.files.length > 0) {
+  //   folderId = response.data.files[0].id;
+  // } else {
+  //   folderId = null;
+  // }
 
   // upload file to Google Drive
   try {
@@ -90,7 +90,7 @@ const processedFiles = async (files, mainFileName) => {
     const file = files[i];
     if (mainFileName && file.originalname === mainFileName) {
       mainFileURL = await processFile(file);
-    } else if (!mainFileName || (i === 0 && mainFileName)) {
+    } else if (!mainFileName && i === 0) {
       mainFileURL = await processFile(file);
     } else {
       additionalFilesURLs.push(await processFile(file));
