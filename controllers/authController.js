@@ -17,14 +17,6 @@ const register = async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  // const users = await User.find();
-
-  // for (const user of users) {
-  //   user.userAvatar = userAvatar; // оновлене значення
-
-  //   await user.save(); // зберегти оновленого користувача
-  // }
-
   const date = new Date();
   const today = `${date.getFullYear()}-${
     date.getMonth() + 1
@@ -60,7 +52,7 @@ const login = async (req, res) => {
   const paylaod = {
     id: user._id,
   };
-  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
+  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "1h" });
   const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
     expiresIn: "24h",
   });
@@ -81,7 +73,7 @@ const refresh = async (req, res, next) => {
   await Session.deleteMany({ uid: req.user._id });
   const paylaod = { id: user._id };
   const newSession = await Session.create({ uid: user._id });
-  const newAccessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
+  const newAccessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "1h" });
   const newRefreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
     expiresIn: "24h",
   });
@@ -172,7 +164,7 @@ const googleAuthController = async (req, res) => {
   const { _id: id, referer } = req.user;
   const paylaod = { id };
 
-  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
+  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "1h" });
   const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
     expiresIn: "24h",
   });
