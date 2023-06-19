@@ -43,11 +43,11 @@ const login = async (req, res) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    throw RequestError(401, "Invalid email or password");
+    throw RequestError(400, "Invalid email or password");
   }
   const passwordCompare = await bcrypt.compare(password, user.passwordHash);
   if (!passwordCompare) {
-    throw RequestError(401, "Invalid email or password");
+    throw RequestError(400, "Invalid email or password");
   }
   const paylaod = {
     id: user._id,
