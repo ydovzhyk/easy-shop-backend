@@ -139,6 +139,59 @@ const getVipProductsController = async (req, res) => {
   });
 };
 
+//get Product by Selector
+const getSelectorProductsController = async (req, res) => {
+  const page = req.query.page || 1;
+  const selector = req.query.selectorName || "New";
+  const limit = 10;
+  const count = await Product.countDocuments();
+  const totalPages = Math.ceil(count / limit);
+  const skip = (page - 1) * limit;
+
+  if (selector === "new") {
+    const products = await Product.find()
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      products,
+      totalPages,
+    });
+  }
+  if (selector === "advice") {
+    const averagePrice = await Product.aggregate([
+      { $group: { _id: null, avgPrice: { $avg: "$price" } } },
+    ]);
+    const average = averagePrice[0].avgPrice;
+    const lowerBound = average - average * 0.3;
+    const upperBound = average + average * 0.3;
+    const products = await Product.find({
+      price: { $gte: lowerBound, $lte: upperBound },
+    })
+      .skip(skip)
+      .limit(limit);
+
+    const adviceCount = await Product.countDocuments({
+      price: { $gte: lowerBound, $lte: upperBound },
+    });
+    const adviceTotalPages = Math.ceil(adviceCount / limit);
+
+    res.status(200).json({
+      products,
+      totalPages: adviceTotalPages,
+    });
+  }
+  if (selector === "sale") {
+    const products = await Product.find().skip(skip).limit(limit);
+
+    res.status(200).json({
+      products,
+      totalPages,
+    });
+  }
+};
+
 module.exports = {
   addProductController,
   deleteProductController,
@@ -146,4 +199,5 @@ module.exports = {
   getUserProductsController,
   getProductsQueryController,
   getVipProductsController,
+  getSelectorProductsController,
 };

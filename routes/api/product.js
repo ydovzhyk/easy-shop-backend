@@ -32,7 +32,11 @@ router.get(
   ctrlWrapper(ctrl.getUserProductsController)
 );
 
+// get vip products
 router.get("/vip", ctrlWrapper(ctrl.getVipProductsController));
+
+// get products by selector
+router.get("/selector", ctrlWrapper(ctrl.getSelectorProductsController));
 
 // deleteProduct
 // router.post(
