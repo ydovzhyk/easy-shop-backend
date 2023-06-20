@@ -112,7 +112,11 @@ const deleteUserController = async (req, res) => {
 const getUserController = async (req, res) => {
   const { _id } = req.user;
   const { accessToken, refreshToken, sid } = req.body;
-  const user = await User.findOne({ _id });
+  const user = await User.findOneAndUpdate(
+    { _id },
+    { lastVisit: new Date() },
+    { new: true }
+  );
   return res.status(200).send({
     accessToken,
     refreshToken,
