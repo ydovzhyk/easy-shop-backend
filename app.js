@@ -7,6 +7,7 @@ require("dotenv").config();
 const authRouter = require("./routes/api/auth");
 const googleRouter = require("./routes/api/google");
 const productRouter = require("./routes/api/product");
+const otherUserRouter = require("./routes/api/otherUser");
 const { DB_HOST } = process.env;
 
 const app = express();
@@ -21,6 +22,7 @@ app.use("/static", express.static("public")); // For access a file
 
 app.use("/auth", authRouter);
 app.use("/product", productRouter);
+app.use("/other-user", otherUserRouter);
 app.use(
   "/google",
   session({
