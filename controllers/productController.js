@@ -54,11 +54,26 @@ const addProductController = async (req, res) => {
 };
 
 const deleteProductController = async (req, res) => {
-  const { userId } = req.params;
-  await User.findOneAndDelete({ _id: userId });
-  const currentSession = req.session;
-  await Session.deleteOne({ _id: currentSession._id });
-  res.status(200).json({ message: "user deleted" });
+  const { productId } = req.params;
+  const { _id: owner } = req.user;
+  try {
+    await Product.deleteOne({ _id: productId });
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: owner },
+      { $pull: { userProducts: productId } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    res.status(200).json({ message: "Product deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting product" });
+  }
+  res.status(200).json({ message: "Product deleted" });
 };
 
 const getProductsController = async (req, res) => {
