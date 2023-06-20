@@ -62,6 +62,9 @@ const userSchema = new Schema(
       type: String,
       default: "/",
     },
+    lastVisit: {
+      type: Date,
+    },
     userProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     userBasket: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     userLikes: [{ type: Schema.Types.ObjectId, ref: "Product" }],
