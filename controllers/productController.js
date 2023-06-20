@@ -179,18 +179,20 @@ const getSelectorProductsController = async (req, res) => {
       { $group: { _id: null, avgPrice: { $avg: "$price" } } },
     ]);
     const average = averagePrice[0].avgPrice;
-    const lowerBound = average - average * 0.3;
-    const upperBound = average + average * 0.3;
-    const products = await Product.find({
-      price: { $gte: lowerBound, $lte: upperBound },
-    })
-      .skip(skip)
-      .limit(limit);
+    console.log(average);
+    const lowerBound = average - average * 0.4;
+    const upperBound = average + average * 0.4;
 
     const adviceCount = await Product.countDocuments({
       price: { $gte: lowerBound, $lte: upperBound },
     });
     const adviceTotalPages = Math.ceil(adviceCount / limit);
+
+    const products = await Product.find({
+      price: { $gte: lowerBound, $lte: upperBound },
+    })
+      .skip(skip)
+      .limit(limit);
 
     res.status(200).json({
       products,
