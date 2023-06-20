@@ -192,6 +192,16 @@ const getSelectorProductsController = async (req, res) => {
   }
 };
 
+//get Product by ID
+const getProductByIdController = async (req, res, next) => {
+  const { productId } = req.params;
+  const productById = await Product.findById(productId);
+  if (!productById) {
+    return next(RequestError(404, "Not found"));
+  }
+  return res.status(200).json(productById);
+};
+
 module.exports = {
   addProductController,
   deleteProductController,
@@ -200,4 +210,5 @@ module.exports = {
   getProductsQueryController,
   getVipProductsController,
   getSelectorProductsController,
+  getProductByIdController,
 };

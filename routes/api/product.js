@@ -46,4 +46,6 @@ router.get("/selector", ctrlWrapper(ctrl.getSelectorProductsController));
 //   ctrlWrapper(ctrl.deleteProductController)
 // );
 
+router.get("/:productId", ctrlWrapper(ctrl.getProductByIdController));
+
 module.exports = router;

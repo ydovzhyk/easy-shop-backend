@@ -37,6 +37,20 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  if (err.status) {
+    return res.status(err.status).json({
+      message: err.message,
+    });
+  }
+
+  if (err.message.includes("Cast to ObjectId failed for value")) {
+    return res.status(400).json({
+      message: "id is invalid",
+    });
+  }
+});
+
+app.use((err, req, res, next) => {
   const { status = 500, message = "Server error" } = err;
   res.status(status).json({
     message,
