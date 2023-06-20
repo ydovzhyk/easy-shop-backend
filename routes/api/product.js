@@ -38,13 +38,14 @@ router.get("/vip", ctrlWrapper(ctrl.getVipProductsController));
 // get products by selector
 router.get("/selector", ctrlWrapper(ctrl.getSelectorProductsController));
 
-// deleteProduct
-// router.post(
-//   "/delete",
-//   authorize,
-//   validateBody(schemas.deleteProductSchema),
-//   ctrlWrapper(ctrl.deleteProductController)
-// );
+// delete product by id
+router.delete(
+  "/delete/:productId",
+  authorize,
+  isValidId,
+  // validateBody(schemas.deleteProductSchema),
+  ctrlWrapper(ctrl.deleteProductController)
+);
 
 router.get("/:productId", ctrlWrapper(ctrl.getProductByIdController));
 

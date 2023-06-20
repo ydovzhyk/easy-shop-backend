@@ -6,7 +6,6 @@ const { Session } = require("../models/session");
 const { SECRET_KEY } = process.env;
 
 const authorize = async (req, res, next) => {
-  console.log("Зайшли в авторизацію");
   const authorizationHeader = req.get("Authorization");
   if (authorizationHeader) {
     const accessToken = authorizationHeader.replace("Bearer ", "");

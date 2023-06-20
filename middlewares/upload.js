@@ -4,7 +4,6 @@ const fs = require("fs");
 
 const tempDir = path.join(__dirname, "../", "temp");
 
-console.log("Зайшли записати");
 const multerConfig = multer.diskStorage({
   destination: tempDir,
   filename: (req, file, cb) => {
