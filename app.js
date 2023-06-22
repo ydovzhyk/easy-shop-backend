@@ -8,7 +8,9 @@ const authRouter = require("./routes/api/auth");
 const googleRouter = require("./routes/api/google");
 const productRouter = require("./routes/api/product");
 const otherUserRouter = require("./routes/api/otherUser");
-const { DB_HOST } = process.env;
+const verifyRouter = require("./routes/api/verify");
+
+const { GOOGLE_CLIENT_SECRET } = process.env;
 
 const app = express();
 
@@ -23,15 +25,26 @@ app.use("/static", express.static("public")); // For access a file
 app.use("/auth", authRouter);
 app.use("/product", productRouter);
 app.use("/other-user", otherUserRouter);
+
 app.use(
-  "/google",
+  "/verify",
   session({
-    secret: `${DB_HOST}`,
+    secret: `${GOOGLE_CLIENT_SECRET}`,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
   })
 );
 
+app.use("/verify", verifyRouter);
+
+app.use(
+  "/google",
+  session({
+    secret: `${GOOGLE_CLIENT_SECRET}`,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 app.use("/google", googleRouter);
 
 app.use((req, res) => {

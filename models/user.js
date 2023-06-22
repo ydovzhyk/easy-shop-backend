@@ -62,6 +62,14 @@ const userSchema = new Schema(
       type: String,
       default: "/",
     },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: "",
+    },
     lastVisit: {
       type: Date,
     },
@@ -93,6 +101,10 @@ const refreshTokenSchema = Joi.object({
   sid: Joi.string().required(),
 });
 
+const verificationSchema = Joi.object({
+  email: Joi.string().pattern(emailRegexp).required(),
+});
+
 const updateUserSettingsSchema = Joi.object({
   email: Joi.string().pattern(emailRegexp),
   userAvatar: Joi.alternatives().try(Joi.string(), Joi.object()),
@@ -110,6 +122,7 @@ const updateUserSettingsSchema = Joi.object({
 const schemas = {
   registerSchema,
   loginSchema,
+  verificationSchema,
   refreshTokenSchema,
   updateUserSettingsSchema,
 };
