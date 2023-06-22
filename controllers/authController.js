@@ -169,7 +169,10 @@ const googleAuthController = async (req, res) => {
   const { _id: id, referer } = req.user;
   const paylaod = { id };
   let senderUrl;
-  if (referer === "https://ydovzhyk.github.io") {
+  if (
+    referer === "https://ydovzhyk.github.io" ||
+    "https://ydovzhyk.github.io/easy-shop/"
+  ) {
     senderUrl = "https://ydovzhyk.github.io/easy-shop/";
   } else {
     senderUrl = referer;
