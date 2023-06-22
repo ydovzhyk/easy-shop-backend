@@ -6,20 +6,9 @@ const ctrl = require("../../controllers/authController");
 const { passport } = require("../../middlewares");
 const router = express.Router();
 
-const rememberReferer = (req, res, next) => {
-  const referer = req.get("Referer");
-  try {
-    req.session.referer = referer;
-  } catch (error) {
-    next(error);
-  }
-  next();
-};
-
 // google auth
 router.get(
   "/",
-  rememberReferer,
   passport.authenticate("google", { scope: ["email", "profile"] })
 );
 

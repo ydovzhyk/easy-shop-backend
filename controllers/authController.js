@@ -166,8 +166,14 @@ const updateUserSettigsController = async (req, res) => {
 };
 
 const googleAuthController = async (req, res) => {
-  const url = req.session.referer;
-  const { _id: id, referer } = req.user;
+  let senderUrl = "";
+  const referer = req.headers.referer || req.headers.origin;
+  if (referer === "https://ydovzhyk.github.io") {
+    senderUrl = "https://ydovzhyk.github.io/easy-shop/";
+  } else {
+    senderUrl = referer;
+  }
+  const { _id: id } = req.user;
   const paylaod = { id };
 
   const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "1h" });
@@ -179,7 +185,7 @@ const googleAuthController = async (req, res) => {
   });
 
   res.redirect(
-    `${referer}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
+    `${senderUrl}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
   );
 };
 
