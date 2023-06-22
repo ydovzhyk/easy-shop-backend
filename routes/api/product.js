@@ -43,7 +43,6 @@ router.delete(
   "/delete/:productId",
   authorize,
   isValidId,
-  // validateBody(schemas.deleteProductSchema),
   ctrlWrapper(ctrl.deleteProductController)
 );
 
