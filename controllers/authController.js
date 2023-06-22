@@ -166,15 +166,14 @@ const updateUserSettigsController = async (req, res) => {
 };
 
 const googleAuthController = async (req, res) => {
-  let senderUrl = "";
-  const referer = req.headers.referer || req.headers.origin;
+  const { _id: id, referer } = req.user;
+  const paylaod = { id };
+  let senderUrl;
   if (referer === "https://ydovzhyk.github.io") {
     senderUrl = "https://ydovzhyk.github.io/easy-shop/";
   } else {
     senderUrl = referer;
   }
-  const { _id: id } = req.user;
-  const paylaod = { id };
 
   const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "1h" });
   const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {

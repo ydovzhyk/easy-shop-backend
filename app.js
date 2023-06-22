@@ -26,6 +26,15 @@ app.use("/auth", authRouter);
 app.use("/product", productRouter);
 app.use("/other-user", otherUserRouter);
 app.use("/verify", verifyRouter);
+
+app.use(
+  "/google",
+  session({
+    secret: `${GOOGLE_CLIENT_SECRET}`,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 app.use("/google", googleRouter);
 
 app.use((req, res) => {
