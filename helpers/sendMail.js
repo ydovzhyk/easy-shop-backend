@@ -3,7 +3,13 @@ require("dotenv").config();
 
 const { SENDGRID_API_KEY, SENDGRID_SENDER } = process.env;
 
-const sendMail = async (email, serverUrl, verificationToken, url) => {
+let senderUrl = "";
+const sendMail = async (email, serverUrl, verificationToken, referer) => {
+  if (referer === "https://ydovzhyk.github.io") {
+    senderUrl = "https://ydovzhyk.github.io/easy-shop/";
+  } else {
+    senderUrl = referer;
+  }
   const sgMail = require("@sendgrid/mail");
   sgMail.setApiKey(SENDGRID_API_KEY);
   const msg = {
@@ -11,7 +17,7 @@ const sendMail = async (email, serverUrl, verificationToken, url) => {
     from: SENDGRID_SENDER,
     subject: "EasyShop site email confirmation",
     text: "EasyShop site email confirmation",
-    html: `<a target="_blank" href="${serverUrl}/verify/${verificationToken}?url=${url}">Follow the link to confirm your email</a>`,
+    html: `<a target="_blank" href="${serverUrl}/verify/${verificationToken}?url=${senderUrl}">Follow the link to confirm your email</a>`,
   };
   try {
     await sgMail.send(msg);
