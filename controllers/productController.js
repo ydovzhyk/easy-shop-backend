@@ -179,7 +179,6 @@ const getSelectorProductsController = async (req, res) => {
       { $group: { _id: null, avgPrice: { $avg: "$price" } } },
     ]);
     const average = averagePrice[0].avgPrice;
-    console.log(average);
     const lowerBound = average - average * 0.4;
     const upperBound = average + average * 0.4;
 

@@ -7,7 +7,12 @@ const { passport } = require("../../middlewares");
 const router = express.Router();
 
 const rememberReferer = (req, res, next) => {
-  req.session.referer = req.headers.referer || "/";
+  const referer = req.get("Referer");
+  try {
+    req.session.referer = referer;
+  } catch (error) {
+    next(error);
+  }
   next();
 };
 

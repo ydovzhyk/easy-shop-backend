@@ -3,10 +3,11 @@ const jwt = require("jsonwebtoken");
 
 const { User } = require("../models/user");
 const { Session } = require("../models/session");
+const { v4: uuidv4 } = require("uuid");
 const { SECRET_KEY, REFRESH_SECRET_KEY, FRONTEND_URL, FRONTEND_URL_GIT } =
   process.env;
 
-const { RequestError } = require("../helpers");
+const { RequestError, sendMail } = require("../helpers");
 
 const register = async (req, res) => {
   const { username, email, password, userAvatar } = req.body;
@@ -165,6 +166,7 @@ const updateUserSettigsController = async (req, res) => {
 };
 
 const googleAuthController = async (req, res) => {
+  const url = req.session.referer;
   const { _id: id, referer } = req.user;
   const paylaod = { id };
 
