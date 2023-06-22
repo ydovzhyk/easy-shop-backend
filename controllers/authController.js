@@ -168,12 +168,15 @@ const updateUserSettigsController = async (req, res) => {
 const googleAuthController = async (req, res) => {
   const { _id: id, referer } = req.user;
   const paylaod = { id };
+
   let senderUrl;
   if (
     referer === "https://ydovzhyk.github.io" ||
-    "https://ydovzhyk.github.io/easy-shop/"
+    referer === "https://ydovzhyk.github.io/easy-shop/"
   ) {
     senderUrl = "https://ydovzhyk.github.io/easy-shop/";
+  } else if (referer === "http://localhost:3000/") {
+    senderUrl = "http://localhost:3000/";
   } else {
     senderUrl = referer;
   }
