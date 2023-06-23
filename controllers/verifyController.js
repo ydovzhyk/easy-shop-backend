@@ -18,7 +18,7 @@ const verificationController = async (req, res) => {
 
   let serverUrl = "";
   if (process.env.NODE_ENV === "production") {
-    serverUrl = "https://easy-shop-backend.herokuapp.com/";
+    serverUrl = "https://easy-shop-backend.herokuapp.com";
   } else {
     serverUrl = "http://localhost:4000";
   }
