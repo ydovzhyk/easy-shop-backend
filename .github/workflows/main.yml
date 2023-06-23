@@ -36,6 +36,9 @@ jobs:
           echo "GOOGLE_DRIVE_CLIENT_ID=${{ secrets.GOOGLE_DRIVE_CLIENT_ID }}" >> .env
           echo "GOOGLE_DRIVE_CLIENT_SECRET=${{ secrets.GOOGLE_DRIVE_CLIENT_SECRET }}" >> .env
           echo "GOOGLE_DRIVE_REDIRECT_URI=${{ secrets.GOOGLE_DRIVE_REDIRECT_URI }}" >> .env
+          echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> .env
+          echo "SENDGRID_SENDER=${{ secrets.SENDGRID_SENDER }}" >> .env
+          echo "EMAIL=${{ secrets.EMAIL }}" >> .env
         working-directory: .
 
       - name: Build Docker image
