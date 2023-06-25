@@ -53,9 +53,9 @@ const login = async (req, res) => {
   const paylaod = {
     id: user._id,
   };
-  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "1h" });
+  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "24h" });
   const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
-    expiresIn: "24h",
+    expiresIn: "48h",
   });
   const newSession = await Session.create({
     uid: user._id,
@@ -74,9 +74,9 @@ const refresh = async (req, res, next) => {
   await Session.deleteMany({ uid: req.user._id });
   const paylaod = { id: user._id };
   const newSession = await Session.create({ uid: user._id });
-  const newAccessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "1h" });
+  const newAccessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "24h" });
   const newRefreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
-    expiresIn: "24h",
+    expiresIn: "48h",
   });
 
   return res
@@ -178,9 +178,9 @@ const googleAuthController = async (req, res) => {
     senderUrl = referer;
   }
 
-  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "1h" });
+  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "24h" });
   const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
-    expiresIn: "24h",
+    expiresIn: "48h",
   });
   const newSession = await Session.create({
     uid: id,
