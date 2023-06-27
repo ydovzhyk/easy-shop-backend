@@ -191,6 +191,33 @@ const googleAuthController = async (req, res) => {
   );
 };
 
+const updateUserBasket = async (req, res, next) => {
+  const { _id } = req.user;
+  console.log(_id);
+  const user = await User.findOne({ _id });
+  // console.log(user);
+
+  if (!user) {
+    return next(RequestError(404, "User Not found"));
+  }
+  const { userBasket } = req.body;
+   console.log(userBasket);
+  console.log(req.body);
+  if (!userBasket) {
+    console.log(!userBasket);
+    return next(RequestError(400, "missing field userBasket"));
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    { _id },
+    { userBasket: userBasket ? userBasket : user.userBasket },
+    { new: true }
+  );
+  console.log(updatedUser);
+
+  return res.status(200).json(updatedUser);
+};
+
 module.exports = {
   register,
   login,
@@ -200,4 +227,5 @@ module.exports = {
   getUserController,
   updateUserSettigsController,
   googleAuthController,
+  updateUserBasket,
 };

@@ -48,4 +48,11 @@ router.post(
   ctrlWrapper(ctrl.updateUserSettigsController)
 );
 
+router.post(
+  "/basket",
+  authorize,
+  // validateBody(schemas.updateUserSettingsSchema),
+  ctrlWrapper(ctrl.updateUserBasket)
+);
+
 module.exports = router;
