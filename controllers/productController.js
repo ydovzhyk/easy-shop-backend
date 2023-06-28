@@ -220,9 +220,9 @@ const getProductByIdController = async (req, res, next) => {
 
 //get Product from Basket
 const getProductFromBasketController = async (req, res, next) => {
-  const { ownertId } = req.params;
+  const { ownerId } = req.params;
   try {
-    const user = await User.findById(ownertId);
+    const user = await User.findById(ownerId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
