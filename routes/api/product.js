@@ -48,4 +48,9 @@ router.delete(
 
 router.get("/:productId", ctrlWrapper(ctrl.getProductByIdController));
 
+router.get(
+  "/basket/:ownerId",
+  ctrlWrapper(ctrl.getProductFromBasketController)
+);
+
 module.exports = router;

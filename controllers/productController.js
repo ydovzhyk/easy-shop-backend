@@ -218,6 +218,23 @@ const getProductByIdController = async (req, res, next) => {
   return res.status(200).json(productById);
 };
 
+//get Product from Basket
+const getProductFromBasketController = async (req, res, next) => {
+  const { ownertId } = req.params;
+  try {
+    const user = await User.findById(ownertId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const productIds = user.userBasket;
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    return res.status(200).json(products);
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   addProductController,
   deleteProductController,
@@ -227,4 +244,5 @@ module.exports = {
   getVipProductsController,
   getSelectorProductsController,
   getProductByIdController,
+  getProductFromBasketController,
 };
