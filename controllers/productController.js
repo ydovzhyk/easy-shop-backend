@@ -229,7 +229,12 @@ const getProductFromBasketController = async (req, res, next) => {
     const productIds = user.userBasket;
     const products = await Product.find({ _id: { $in: productIds } });
 
-    return res.status(200).json(products);
+    const uniqueOwners = [...new Set(products.map((product) => product.owner))];
+    const users = await User.find({ _id: { $in: uniqueOwners } });
+
+    return res
+      .status(200)
+      .json({ productsFromBasket: products, sellersFromBasket: user });
   } catch (error) {
     return next(error);
   }
