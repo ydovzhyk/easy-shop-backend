@@ -230,11 +230,12 @@ const getProductFromBasketController = async (req, res, next) => {
     const products = await Product.find({ _id: { $in: productIds } });
 
     const uniqueOwners = [...new Set(products.map((product) => product.owner))];
-    const users = await User.find({ _id: { $in: uniqueOwners } });
+
+    const sellers = await User.find({ _id: { $in: uniqueOwners } });
 
     return res
       .status(200)
-      .json({ productsFromBasket: products, sellersFromBasket: user });
+      .json({ productsFromBasket: products, sellersFromBasket: sellers });
   } catch (error) {
     return next(error);
   }
