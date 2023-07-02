@@ -20,6 +20,14 @@ router.post(
   ctrlWrapper(ctrl.addProductController)
 );
 
+// addProduct
+router.post(
+  "/update",
+  upload.array("files"),
+  authorize,
+  ctrlWrapper(ctrl.updateProductController)
+);
+
 router.get("/", ctrlWrapper(ctrl.getProductsController));
 
 //get products by Query

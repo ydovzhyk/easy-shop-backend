@@ -53,6 +53,73 @@ const addProductController = async (req, res) => {
   res.status(200).json({ message: "Product added successfully" });
 };
 
+const updateProductController = async (req, res) => {
+  const {
+    nameProduct,
+    brendName,
+    condition,
+    section,
+    vip,
+    quantity,
+    keyWords,
+    size,
+    category,
+    mainFileName,
+    description,
+    price,
+    sale,
+    saleDate,
+    id,
+    mainPhotoUrl,
+    additionalPhotoUrl,
+  } = req.body;
+
+  const files = req.files;
+
+  const product = await Product.findById(id);
+
+  product.nameProduct = nameProduct;
+  product.brendName = brendName;
+  product.condition = condition;
+  product.section = section;
+  product.vip = vip;
+  product.quantity = quantity;
+  product.keyWords = keyWords;
+  product.size = JSON.parse(size);
+  product.category = category;
+  product.description = description;
+  product.price = price;
+  product.sale = sale;
+  product.saleDate = saleDate;
+
+  let mainUrl = null;
+  let additionalUrl = [];
+
+  if (files.length === 0) {
+    mainUrl = mainPhotoUrl;
+    additionalUrl = JSON.parse(additionalPhotoUrl);
+  } else if (mainFileName && files.length === 1) {
+    const filesUrls = await processedFiles(files, mainFileName);
+    mainUrl = filesUrls.mainFileURL;
+    additionalUrl = JSON.parse(additionalPhotoUrl);
+  } else if (!mainFileName && files.length > 0) {
+    const filesUrls = await processedFiles(files, mainFileName);
+    mainUrl = mainPhotoUrl;
+    additionalUrl = filesUrls.additionalFilesURLs;
+  } else {
+    const filesUrls = await processedFiles(files, mainFileName);
+    mainUrl = filesUrls.mainFileURL;
+    additionalUrl = filesUrls.additionalFilesURLs;
+  }
+
+  product.mainPhotoUrl = mainUrl;
+  product.additionalPhotoUrl = additionalUrl;
+
+  await product.save();
+
+  res.status(200).json({ message: "Product updated successfully" });
+};
+
 const deleteProductController = async (req, res) => {
   const { productId } = req.params;
   const { _id: owner } = req.user;
@@ -243,6 +310,7 @@ const getProductFromBasketController = async (req, res, next) => {
 
 module.exports = {
   addProductController,
+  updateProductController,
   deleteProductController,
   getProductsController,
   getUserProductsController,

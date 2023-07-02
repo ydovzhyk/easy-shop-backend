@@ -86,17 +86,25 @@ const processedFiles = async (files, mainFileName) => {
   let mainFileURL = null;
   let additionalFilesURLs = [];
 
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (mainFileName && file.originalname === mainFileName) {
-      mainFileURL = await processFile(file);
-    } else if (!mainFileName && i === 0) {
-      mainFileURL = await processFile(file);
-    } else {
+  if (files.length === 1 && mainFileName) {
+    mainFileURL = await processFile(files[0]);
+  } else if (files.length > 0 && !mainFileName) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       additionalFilesURLs.push(await processFile(file));
     }
+  } else {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (mainFileName && file.originalname === mainFileName) {
+        mainFileURL = await processFile(file);
+      } else if (!mainFileName && i === 0) {
+        mainFileURL = await processFile(file);
+      } else {
+        additionalFilesURLs.push(await processFile(file));
+      }
+    }
   }
-
   return { mainFileURL, additionalFilesURLs };
 };
 
