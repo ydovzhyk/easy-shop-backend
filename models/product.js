@@ -79,6 +79,12 @@ const productSchema = new Schema(
       required: true,
       default: true,
     },
+    saleDate: {
+      type: String,
+    },
+    sale: {
+      type: Number,
+    },
   },
   { minimize: false }
 );

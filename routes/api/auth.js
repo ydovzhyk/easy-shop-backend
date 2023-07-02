@@ -55,4 +55,11 @@ router.post(
   ctrlWrapper(ctrl.updateUserBasket)
 );
 
+router.post(
+  "/likes",
+  authorize,
+  // validateBody(schemas.updateUserSettingsSchema),
+  ctrlWrapper(ctrl.updateUserLikes)
+);
+
 module.exports = router;

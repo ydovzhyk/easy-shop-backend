@@ -8,6 +8,7 @@ const { SECRET_KEY, REFRESH_SECRET_KEY, FRONTEND_URL, FRONTEND_URL_GIT } =
   process.env;
 
 const { RequestError, sendMail } = require("../helpers");
+const { Product } = require("../models/product");
 
 const register = async (req, res) => {
   const { username, email, password, userAvatar } = req.body;
@@ -211,6 +212,41 @@ const updateUserBasket = async (req, res, next) => {
   return res.status(200).json(updatedUser);
 };
 
+const updateUserLikes = async (req, res, next) => {
+  const { _id } = req.user;
+  const { productId } = req.body;
+
+  const user = await User.findOne({ _id });
+  const userLikes = user.userLikes || [];
+
+  if (!userLikes.includes(productId)) {
+    userLikes.push(productId);
+  } else {
+    const updatedUserLikes = userLikes.filter((id) => id !== productId);
+    userLikes = updatedUserLikes;
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    _id,
+    { userLikes },
+    { new: true }
+  );
+
+  const product = await Product.findOne({ productId });
+  const userLikesProduct = product.userLikes || [];
+
+  if (!userLikesProduct.includes(_id)) {
+    userLikesProduct.push(_id);
+  } else {
+    const updatedUserLikes = userLikesProduct.filter((id) => id !== _id);
+    userLikesProduct = updatedUserLikes;
+  }
+
+  await User.findByIdAndUpdate(productId, { userLikesProduct }, { new: true });
+
+  return res.status(200).json(updatedUser);
+};
+
 module.exports = {
   register,
   login,
@@ -221,4 +257,5 @@ module.exports = {
   updateUserSettigsController,
   googleAuthController,
   updateUserBasket,
+  updateUserLikes,
 };
