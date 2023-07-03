@@ -217,12 +217,14 @@ const updateUserLikes = async (req, res, next) => {
   const { productId } = req.body;
 
   const user = await User.findOne({ _id });
-  const userLikes = user.userLikes || [];
+  let userLikes = user.userLikes || [];
 
   if (!userLikes.includes(productId)) {
     userLikes.push(productId);
   } else {
-    const updatedUserLikes = userLikes.filter((id) => id !== productId);
+    const updatedUserLikes = userLikes.filter(
+      (id) => id.toString() !== productId
+    );
     userLikes = updatedUserLikes;
   }
 
@@ -232,17 +234,21 @@ const updateUserLikes = async (req, res, next) => {
     { new: true }
   );
 
-  const product = await Product.findOne({ productId });
-  const userLikesProduct = product.userLikes || [];
+  const product = await Product.findById(productId);
+  let userLikesProduct = product.userLikes || [];
 
   if (!userLikesProduct.includes(_id)) {
     userLikesProduct.push(_id);
   } else {
-    const updatedUserLikes = userLikesProduct.filter((id) => id !== _id);
+    const updatedUserLikes = userLikesProduct.filter((id) => !id.equals(_id));
     userLikesProduct = updatedUserLikes;
   }
 
-  await User.findByIdAndUpdate(productId, { userLikesProduct }, { new: true });
+  await Product.findByIdAndUpdate(
+    product._id,
+    { userLikes: userLikesProduct },
+    { new: true }
+  );
 
   return res.status(200).json(updatedUser);
 };
