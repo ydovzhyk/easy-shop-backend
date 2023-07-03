@@ -222,7 +222,9 @@ const updateUserLikes = async (req, res, next) => {
   if (!userLikes.includes(productId)) {
     userLikes.push(productId);
   } else {
-    const updatedUserLikes = userLikes.filter((id) => id !== productId);
+    const updatedUserLikes = userLikes.filter(
+      (id) => id.toString() !== productId
+    );
     userLikes = updatedUserLikes;
   }
 
@@ -238,7 +240,7 @@ const updateUserLikes = async (req, res, next) => {
   if (!userLikesProduct.includes(_id)) {
     userLikesProduct.push(_id);
   } else {
-    const updatedUserLikes = userLikesProduct.filter((id) => id !== _id);
+    const updatedUserLikes = userLikesProduct.filter((id) => !id.equals(_id));
     userLikesProduct = updatedUserLikes;
   }
 
