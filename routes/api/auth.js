@@ -23,7 +23,7 @@ router.post(
   ctrlWrapper(ctrl.login)
 );
 // logout
-router.post("/logout", ctrlWrapper(ctrl.logout));
+router.post("/logout", authorize, ctrlWrapper(ctrl.logout));
 // delete user
 router.delete(
   "/:userId",

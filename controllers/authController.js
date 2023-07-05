@@ -54,9 +54,9 @@ const login = async (req, res) => {
   const paylaod = {
     id: user._id,
   };
-  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "24h" });
+  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
   const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
-    expiresIn: "48h",
+    expiresIn: "24h",
   });
   const newSession = await Session.create({
     uid: user._id,
@@ -75,9 +75,9 @@ const refresh = async (req, res, next) => {
   await Session.deleteMany({ uid: req.user._id });
   const paylaod = { id: user._id };
   const newSession = await Session.create({ uid: user._id });
-  const newAccessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "24h" });
+  const newAccessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
   const newRefreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
-    expiresIn: "48h",
+    expiresIn: "24h",
   });
 
   return res
@@ -85,21 +85,15 @@ const refresh = async (req, res, next) => {
     .send({ newAccessToken, newRefreshToken, sid: newSession._id });
 };
 
-const logout = async (req, res) => {
-  const authorizationHeader = req.get("Authorization");
-  if (authorizationHeader) {
-    const accessToken = authorizationHeader.replace("Bearer ", "");
-    let payload = {};
-    try {
-      payload = jwt.verify(accessToken, SECRET_KEY);
-    } catch (err) {
-      return res.status(401).send({ message: "Unauthorized" });
-    }
-    const user = await User.findById(payload.id);
-    await Session.findOneAndDelete({ uid: user._id });
+const logout = async (req, res, next) => {
+  const user = req.user;
+  console.log(user._id);
+  try {
+    await Session.deleteMany({ uid: user._id });
+    console.log("Видалили сесію");
     return res.status(204).json({ message: "logout success" });
-  } else {
-    return res.status(204).json({ message: "logout success" });
+  } catch (error) {
+    return next(RequestError(404, "Session Not found"));
   }
 };
 
@@ -179,9 +173,9 @@ const googleAuthController = async (req, res) => {
     senderUrl = referer;
   }
 
-  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "24h" });
+  const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "8h" });
   const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
-    expiresIn: "48h",
+    expiresIn: "24h",
   });
   const newSession = await Session.create({
     uid: id,
