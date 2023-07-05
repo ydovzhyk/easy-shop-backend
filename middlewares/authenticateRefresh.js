@@ -14,7 +14,7 @@ const authenticateRefresh = async (req, res, next) => {
     try {
       payload = jwt.verify(refreshToken, REFRESH_SECRET_KEY);
     } catch (err) {
-      return res.status(401).send({ message: "Unauthorized" });
+      return res.status(401).send({ message: "Refresh end" });
     }
     const user = await User.findById(payload.id);
     const sessionUser = await Session.findOne({ uid: user._id });
