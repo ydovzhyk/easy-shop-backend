@@ -190,16 +190,21 @@ const updateUserBasket = async (req, res, next) => {
   const { _id } = req.user;
   const user = await User.findOne({ _id });
 
-  if (!user) {
-    return next(RequestError(404, "User Not found"));
+  const { productId } = req.body;
+  let userBasket = user.userBasket || [];
+
+  if (!userBasket.includes(productId)) {
+    userBasket.push(productId);
+  } else {
+    const updatedUserBasket = userBasket.filter(
+      (id) => id.toString() !== productId
+    );
+    userBasket = updatedUserBasket;
   }
-  const { userBasket } = req.body;
-  if (!userBasket) {
-    return next(RequestError(400, "missing field userBasket"));
-  }
+
   const updatedUser = await User.findByIdAndUpdate(
-    { _id },
-    { userBasket: userBasket ? userBasket : user.userBasket },
+    _id,
+    { userBasket },
     { new: true }
   );
 
