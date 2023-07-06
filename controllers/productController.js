@@ -172,30 +172,79 @@ const getUserProductsController = async (req, res) => {
 
 // get products by Query
 const getProductsQueryController = async (req, res) => {
-  const { search } = req.query;
+  const searchQuery = req.query.searchQuery;
+  const section = req.query.section;
+  const category = req.query.category;
+  const filterData = JSON.parse(req.query.filterData);
 
-  const searchKeywords = search.toLowerCase().split(" ");
+  // console.log("searchQuery", searchQuery);
+  // console.log("section", section);
+  // console.log("category", category);
+  // console.log("filterData", filterData);
 
-  const regexQueries = searchKeywords.map((keyword) => ({
-    $or: [
-      { nameProduct: { $regex: keyword, $options: "i" } },
-      { brendName: { $regex: keyword, $options: "i" } },
-      { condition: { $regex: keyword, $options: "i" } },
-      { section: { $regex: keyword, $options: "i" } },
-      { category: { $regex: keyword, $options: "i" } },
-      { description: { $regex: keyword, $options: "i" } },
-      { keyWords: { $regex: keyword, $options: "i" } },
-    ],
-  }));
+  const searchKeywords = searchQuery.toLowerCase().split(" ");
 
-  const filteredProducts = await Product.find({ $and: regexQueries }).lean();
+  const getRegexQueries = (searchKeywords) => {
+    return searchKeywords.map((keyword) => ({
+      $or: [
+        { nameProduct: { $regex: keyword, $options: "i" } },
+        { brendName: { $regex: keyword, $options: "i" } },
+        { condition: { $regex: keyword, $options: "i" } },
+        { section: { $regex: keyword, $options: "i" } },
+        { category: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
+        { keyWords: { $regex: keyword, $options: "i" } },
+      ],
+    }));
+  };
 
-  const uniqueProducts = filteredProducts.reduce((unique, product) => {
+  const categoryQuery = {};
+  if (section) {
+    categoryQuery.section = section;
+  }
+  if (category) {
+    categoryQuery.category = category;
+  }
+
+  const regexQueries = getRegexQueries(searchKeywords);
+  const query =
+    Object.keys(categoryQuery).length > 0
+      ? { $and: [categoryQuery, ...regexQueries] }
+      : { $or: regexQueries };
+
+  const filteredProducts = await Product.find(query).lean();
+
+  let uniqueProducts = filteredProducts.reduce((unique, product) => {
     if (!unique.find((item) => item._id === product._id)) {
       unique.push(product);
     }
     return unique;
   }, []);
+
+  if (filterData.brandName) {
+    const lowercaseBrandName = String(filterData.brandName).toLowerCase();
+    uniqueProducts = uniqueProducts.filter((product) => {
+      return product.brendName.toLowerCase().includes(lowercaseBrandName);
+    });
+  }
+
+  if (filterData.size) {
+    const sizes = JSON.parse(filterData.size);
+    uniqueProducts = uniqueProducts.filter((product) => {
+      for (const sizeData of sizes) {
+        const sizeName = sizeData[0].name;
+        if (
+          product.size.some((item) => {
+            return item[0].name === sizeName;
+          })
+        ) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
   if (uniqueProducts.length === 0) {
     res.status(200).json([]);
   } else {
