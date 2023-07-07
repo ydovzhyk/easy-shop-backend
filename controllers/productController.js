@@ -177,11 +177,6 @@ const getProductsQueryController = async (req, res) => {
   const category = req.query.category;
   const filterData = JSON.parse(req.query.filterData);
 
-  // console.log("searchQuery", searchQuery);
-  // console.log("section", section);
-  // console.log("category", category);
-  // console.log("filterData", filterData);
-
   const searchKeywords = searchQuery.toLowerCase().split(" ");
 
   const getRegexQueries = (searchKeywords) => {
@@ -228,7 +223,7 @@ const getProductsQueryController = async (req, res) => {
     });
   }
 
-  if (filterData.size) {
+  if (filterData.size && JSON.parse(filterData.size).length > 0) {
     const sizes = JSON.parse(filterData.size);
     uniqueProducts = uniqueProducts.filter((product) => {
       for (const sizeData of sizes) {
@@ -243,6 +238,56 @@ const getProductsQueryController = async (req, res) => {
       }
       return false;
     });
+  }
+
+  if (filterData.condition && filterData.condition.length > 0) {
+    const conditions = filterData.condition.map((condition) =>
+      String(condition).toLowerCase()
+    );
+    uniqueProducts = uniqueProducts.filter((product) => {
+      return conditions.some((condition) => {
+        return product.condition.toLowerCase() === condition;
+      });
+    });
+  }
+
+  if (filterData.filterPriceFrom && filterData.filterPriceTo) {
+    const filterPriceFrom = parseInt(filterData.filterPriceFrom);
+    const filterPriceTo = parseInt(filterData.filterPriceTo);
+
+    uniqueProducts = uniqueProducts.filter((product) => {
+      const productPrice = parseInt(product.price);
+      return productPrice >= filterPriceFrom && productPrice <= filterPriceTo;
+    });
+  }
+
+  if (filterData.filterPrice) {
+    const filterPrice = String(filterData.filterPrice);
+
+    if (filterPrice === "До 100грн") {
+      uniqueProducts = uniqueProducts.filter((product) => {
+        const productPrice = parseInt(product.price);
+        return productPrice <= 100;
+      });
+    } else if (filterPrice === "Більше 1000грн") {
+      uniqueProducts = uniqueProducts.filter((product) => {
+        const productPrice = parseInt(product.price);
+        return productPrice > 1000;
+      });
+    } else if (filterPrice.includes("Від") && filterPrice.includes("до")) {
+      const priceRange = filterPrice
+        .replace("Від", "")
+        .replace("до", "")
+        .split(" ");
+
+      const filterPriceFrom = parseInt(priceRange[1]);
+      const filterPriceTo = parseInt(priceRange[3]);
+
+      uniqueProducts = uniqueProducts.filter((product) => {
+        const productPrice = parseInt(product.price);
+        return productPrice >= filterPriceFrom && productPrice <= filterPriceTo;
+      });
+    }
   }
 
   if (uniqueProducts.length === 0) {
