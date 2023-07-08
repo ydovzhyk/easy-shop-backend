@@ -62,4 +62,6 @@ router.post(
   ctrlWrapper(ctrl.updateUserLikes)
 );
 
+router.get("/info", authorize, ctrlWrapper(ctrl.getUserLikesBasket));
+
 module.exports = router;
