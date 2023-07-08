@@ -87,10 +87,8 @@ const refresh = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
   const user = req.user;
-  console.log(user._id);
   try {
     await Session.deleteMany({ uid: user._id });
-    console.log("Видалили сесію");
     return res.status(204).json({ message: "logout success" });
   } catch (error) {
     return next(RequestError(404, "Session Not found"));
@@ -189,18 +187,22 @@ const googleAuthController = async (req, res) => {
 const updateUserBasket = async (req, res, next) => {
   const { _id } = req.user;
   const user = await User.findOne({ _id });
+  const { productId, selectedSizes } = req.body;
 
-  const { productId } = req.body;
   let userBasket = user.userBasket || [];
 
-  if (!userBasket.includes(productId)) {
-    userBasket.push(productId);
-  } else {
-    const updatedUserBasket = userBasket.filter(
-      (id) => id.toString() !== productId
-    );
-    userBasket = updatedUserBasket;
+  let updatedUserBasket = userBasket.filter((item) => {
+    return item[0].productId !== productId;
+  });
+
+  if (updatedUserBasket.length === userBasket.length) {
+    updatedUserBasket.push({
+      productId: productId,
+      selectedSizes: selectedSizes,
+    });
   }
+
+  userBasket = updatedUserBasket;
 
   const updatedUser = await User.findByIdAndUpdate(
     _id,
