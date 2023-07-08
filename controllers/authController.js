@@ -210,7 +210,13 @@ const updateUserBasket = async (req, res, next) => {
     { new: true }
   );
 
-  return res.status(200).json(updatedUser);
+  const lastBasket = updatedUser.userBasket;
+  const productIds = lastBasket.map((item) => {
+    return item[0].productId;
+  });
+  const basketProducts = await Product.find({ _id: { $in: productIds } });
+
+  return res.status(200).json({ updatedUser, basketProducts });
 };
 
 const updateUserLikes = async (req, res, next) => {
@@ -251,7 +257,31 @@ const updateUserLikes = async (req, res, next) => {
     { new: true }
   );
 
-  return res.status(200).json(updatedUser);
+  const lastLikes = updatedUser.userLikes;
+  const likedProducts = await Product.find({
+    _id: { $in: lastLikes },
+  });
+
+  return res.status(200).json({ updatedUser, likedProducts });
+};
+
+const getUserLikesBasket = async (req, res, next) => {
+  const { _id } = req.user;
+
+  const user = await User.findOne({ _id });
+  const userLikes = user.userLikes || [];
+  const userBasket = user.userBasket || [];
+
+  const likedProducts = await Product.find({
+    _id: { $in: userLikes },
+  });
+
+  const productIds = userBasket.map((item) => {
+    return item[0].productId;
+  });
+  const basketProducts = await Product.find({ _id: { $in: productIds } });
+
+  return res.status(200).json({ likedProducts, basketProducts });
 };
 
 module.exports = {
@@ -265,4 +295,5 @@ module.exports = {
   googleAuthController,
   updateUserBasket,
   updateUserLikes,
+  getUserLikesBasket,
 };
