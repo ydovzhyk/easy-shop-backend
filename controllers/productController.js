@@ -387,11 +387,13 @@ const getProductFromBasketController = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    const productIds = user.userBasket;
+
+    const productIds = user.userBasket.map((item) => {
+      return item[0].productId;
+    });
+
     const products = await Product.find({ _id: { $in: productIds } });
-
     const uniqueOwners = [...new Set(products.map((product) => product.owner))];
-
     const sellers = await User.find({ _id: { $in: uniqueOwners } });
 
     return res
