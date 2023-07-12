@@ -9,6 +9,7 @@ const googleRouter = require("./routes/api/google");
 const productRouter = require("./routes/api/product");
 const otherUserRouter = require("./routes/api/otherUser");
 const verifyRouter = require("./routes/api/verify");
+const dialogueRouter = require("./routes/api/dialogue");
 
 const { GOOGLE_CLIENT_SECRET } = process.env;
 
@@ -26,6 +27,7 @@ app.use("/auth", authRouter);
 app.use("/product", productRouter);
 app.use("/other-user", otherUserRouter);
 app.use("/verify", verifyRouter);
+app.use("/dialogue", dialogueRouter);
 
 app.use(
   "/google",
