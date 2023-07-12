@@ -79,6 +79,7 @@ const userSchema = new Schema(
       default: [],
     },
     userLikes: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    userDialogue: [{ type: Schema.Types.ObjectId, ref: "Dialogue" }],
     userOrders: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
   },
   { minimize: false }
