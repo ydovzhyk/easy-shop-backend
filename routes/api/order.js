@@ -15,8 +15,8 @@ const router = express.Router();
 router.post(
   "/",
   authorize,
-//   validateBody(schemas.addPreOrderSchema),
-  ctrlWrapper(ctrl.addPreOrderController)
+//   validateBody(schemas.addOrderSchema),
+  ctrlWrapper(ctrl.addOrderController)
 );
 
 // updateOrder

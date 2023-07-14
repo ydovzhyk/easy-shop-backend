@@ -25,15 +25,19 @@ const orderSchema = new Schema(
       },
       customerSecondName: {
         type: String,
+        default: "",
       },
       customerFirstName: {
         type: String,
+        default: "",
       },
       customerSurName: {
         type: String,
+        default: "",
       },
       customerTel: {
         type: String,
+        default: "",
       },
     },
     // customerId: {
@@ -54,6 +58,11 @@ const orderSchema = new Schema(
     // },
     delivery: {
       type: String,
+      default: "",
+    },
+    confirmed: {
+      type: Boolean,
+      default: false,
     },
   },
   { minimize: false }
@@ -63,7 +72,7 @@ orderSchema.post("save", handleSaveErrors);
 
 const Order = model("order", orderSchema);
 
-const addPreOrderSchema = Joi.object({
+const addOrderSchema = Joi.object({
   sellerName: Joi.string().required(),
   sellerId: Joi.string().required(),
   products: Joi.array()
@@ -104,7 +113,7 @@ const updateOrderSchema = Joi.object({
 
 
 const schemas = {
-  addPreOrderSchema,
+  addOrderSchema,
   updateOrderSchema,
 };
 
