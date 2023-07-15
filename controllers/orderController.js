@@ -7,28 +7,29 @@ const addOrderController = async (req, res) => {
   const { _id: owner } = req.user;
     console.log("owner", owner);
     console.log("req.body", req.body);
-  const {
-    ownerName,
-    sellerId,
-    products,
-    totalSum,
-    } = req.body;
+  const { ownerName, ownerId, products, totalSum } = req.body;
     
   const newOrder = await Order.create({
     sellerName: ownerName,
-    sellerId: sellerId,
+    sellerId: ownerId,
     products: products,
     orderSum: totalSum,
+    client: {
+      customerId: owner,
+    },
   });
   console.log("newOrder", newOrder);
 
   const updatedUser = await User.findOneAndUpdate(
     { _id: owner },
-    { $push: { orders: newOrder._id } },
+    { $push: { userOrders: newOrder._id } },
     { new: true }
   );
 
-  res.status(200).json( newOrder._id );
+  res.status(200).json({
+    message: "Order added successfully",
+    newOrderId: newOrder._id,
+  });
 };
 
 const updateOrderController = async (req, res) => {
@@ -71,7 +72,10 @@ const updateOrderController = async (req, res) => {
       { new: true }
     );  
 
-  res.status(200).json(updatedOrder);
+  res.status(200).json({
+    message: "Product updated successfully",
+    updatedOrder,
+  });
 };
 
 //get Order by ID
