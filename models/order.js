@@ -73,34 +73,36 @@ orderSchema.post("save", handleSaveErrors);
 const Order = model("order", orderSchema);
 
 const addOrderSchema = Joi.object({
-  sellerName: Joi.string().required(),
-  sellerId: Joi.string().required(),
+  ownerName: Joi.string().required(),
+  ownerId: Joi.string().required(),
   products: Joi.array()
-    .items(
-      Joi.object({
-        price: Joi.number().required(),
-        quantity: Joi.number().required(),
-        size: Joi.array().required(),
-        sum: Joi.number().required(),
-        _id: Joi.string().required(),
-      })
-    )
+    // .items(
+    //   Joi.object({
+    //     price: Joi.number().required(),
+    //     quantity: Joi.number().required(),
+    //     size: Joi.array().required(),
+    //     sum: Joi.number().required(),
+    //     _id: Joi.string().required(),
+    //   })
+    // )
     .required(),
-  orderSum: Joi.number().required(),
+  totalSum: Joi.number().required(),
 });
 
 const updateOrderSchema = Joi.object({
+  orderId: Joi.string().required(),
   sellerName: Joi.string().required(),
+  sellerId: Joi.string().required(),
   products: Joi.array()
-    .items(
-      Joi.object({
-        price: Joi.number().required(),
-        quantity: Joi.number().required(),
-        size: Joi.array().required(),
-        sum: Joi.number().required(),
-        _id: Joi.string().required(),
-      })
-    )
+    // .items(
+    //   Joi.object({
+    //     price: Joi.number().required(),
+    //     quantity: Joi.number().required(),
+    //     size: Joi.array().required(),
+    //     sum: Joi.number().required(),
+    //     _id: Joi.string().required(),
+    //   })
+    // )
     .required(),
   totalSum: Joi.number().required(),
   customerId: Joi.string().required(),

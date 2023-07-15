@@ -5,8 +5,6 @@ const { RequestError } = require("../helpers");
 
 const addOrderController = async (req, res) => {
   const { _id: owner } = req.user;
-    console.log("owner", owner);
-    console.log("req.body", req.body);
   const { ownerName, ownerId, products, totalSum } = req.body;
     
   const newOrder = await Order.create({
@@ -18,7 +16,6 @@ const addOrderController = async (req, res) => {
       customerId: owner,
     },
   });
-  console.log("newOrder", newOrder);
 
   const updatedUser = await User.findOneAndUpdate(
     { _id: owner },
@@ -29,13 +26,16 @@ const addOrderController = async (req, res) => {
   res.status(200).json({
     message: "Order added successfully",
     newOrderId: newOrder._id,
+    newOrder,
   });
 };
 
 const updateOrderController = async (req, res) => {
-    const { orderId } = req.params;
-    const {
+    // const { orderId } = req.params;
+  const {
+      orderId,
       sellerName,
+      sellerId,
       products,
       totalSum,
       customerId,
@@ -45,36 +45,38 @@ const updateOrderController = async (req, res) => {
       delivery,
       customerTel,
     } = req.body;
-    
+    console.log("req.body", req.body);
     const order = await Order.findById(orderId);
 
     const updatedOrder = await Order.findOneAndUpdate(
       { _id: orderId },
       {
         sellerName: sellerName ? sellerName : order.sellerName,
-        delivery: delivery ? delivery : order.delivery,
-        totalSum: totalSum ? totalSum : order.totalSum,
+        sellerId: sellerId ? sellerId : order.sellerId,
         products: products ? products : order.products,
+        orderSum: totalSum ? totalSum : order.orderSum,
         client: {
           customerId: customerId ? customerId : order.customerId,
+          customerSecondName: customerSecondName
+            ? customerSecondName
+            : order.customerSecondName,
           customerFirstName: customerFirstName
             ? customerFirstName
             : order.customerFirstName,
           customerSurName: customerSurName
             ? customerSurName
             : order.customerSurName,
-          customerSecondName: customerSecondName
-            ? customerSecondName
-            : order.customerSecondName,
           customerTel: customerTel ? customerTel : order.customerTel,
         },
+        delivery: delivery ? delivery : order.delivery,
       },
       { new: true }
     );  
-
+console.log("updatedOrder", updatedOrder);
   res.status(200).json({
     message: "Product updated successfully",
     updatedOrder,
+    code: 200,
   });
 };
 
@@ -88,8 +90,14 @@ const getOrderByIdController = async (req, res, next) => {
   return res.status(200).json(orderById);
 };
 
+const getOrdersController = async (req, res) => {
+  const orders = await Order.find();
+  res.status(200).json(orders);
+};
+
 module.exports = {
   addOrderController,
   updateOrderController,
   getOrderByIdController,
+  getOrdersController,
 };

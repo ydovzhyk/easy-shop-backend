@@ -13,21 +13,21 @@ const router = express.Router();
 
 // addOrder
 router.post(
-  "/",
+  "/add",
   authorize,
-//   validateBody(schemas.addOrderSchema),
+  validateBody(schemas.addOrderSchema),
   ctrlWrapper(ctrl.addOrderController)
 );
 
 // updateOrder
 router.post(
-  "/:orderId",
-    authorize,
-//   validateBody(schemas.updateOrderSchema),
+  "/update",
+  authorize,
+  validateBody(schemas.updateOrderSchema),
   ctrlWrapper(ctrl.updateOrderController)
 );
 
-
+router.get("/", ctrlWrapper(ctrl.getOrdersController));
 router.get("/:orderId", ctrlWrapper(ctrl.getOrderByIdController));
 
 module.exports = router;
