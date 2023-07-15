@@ -40,22 +40,6 @@ const orderSchema = new Schema(
         default: "",
       },
     },
-    // customerId: {
-    //   type: Schema.Types.ObjectId,
-    //   required: true,
-    // },
-    // customerSecondName: {
-    //   type: String,
-    // },
-    // customerFirstName: {
-    //   type: String,
-    // },
-    // customerSurName: {
-    //   type: String,
-    // },
-    // customerTel: {
-    //   type: String,
-    // },
     delivery: {
       type: String,
       default: "",
