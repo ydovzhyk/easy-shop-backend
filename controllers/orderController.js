@@ -95,9 +95,36 @@ const getOrdersController = async (req, res) => {
   res.status(200).json(orders);
 };
 
+const deleteOrderController = async (req, res) => {
+  const { orderId } = req.params;
+  // const orderById = await Order.findById(orderId);
+  // const ownerId = orderById.client.customerId;
+  const { _id: owner } = req.user;
+  try {
+    await Order.deleteOne({ _id: orderId });
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: owner },
+      // { _id: ownerId },
+      { $pull: { userOrders: orderId } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    res.status(200).json({ message: "Order deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting Order" });
+  }
+  res.status(200).json({ message: "Order deleted" });
+};
+
 module.exports = {
   addOrderController,
   updateOrderController,
   getOrderByIdController,
   getOrdersController,
+  deleteOrderController,
 };
