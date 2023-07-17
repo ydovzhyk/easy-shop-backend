@@ -74,7 +74,7 @@ const updateOrderController = async (req, res) => {
     );  
 console.log("updatedOrder", updatedOrder);
   res.status(200).json({
-    message: "Product updated successfully",
+    message: "Order formed successfully",
     updatedOrder,
     code: 200,
   });
