@@ -33,8 +33,7 @@ router.get("/:orderId", ctrlWrapper(ctrl.getOrderByIdController));
 // delete order by id
 router.delete(
   "/delete/:orderId",
-  // authorize,
-  // isValidId,
+  authorize,
   ctrlWrapper(ctrl.deleteOrderController)
 );
 
