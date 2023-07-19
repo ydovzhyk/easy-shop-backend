@@ -1,6 +1,7 @@
 const { Dialogue } = require("../models/dialogue");
 const { User } = require("../models/user");
 const { Product } = require("../models/product");
+const { NewMessage } = require("../models/newMessage");
 
 const { RequestError } = require("../helpers/");
 const moment = require("moment");
@@ -26,6 +27,7 @@ const createDialogueController = async (req, res) => {
       productId,
       productOwner,
       productOwnerAvatar: isProductOwner.userAvatar,
+      statusDialogue: true,
     });
 
     const updatedUser = await User.findOneAndUpdate(
@@ -93,7 +95,135 @@ const getDialogueController = async (req, res) => {
   }
 };
 
+const getAllDialoguesController = async (req, res) => {
+  const { statusDialogue } = req.body;
+  const userId = req.user._id;
+
+  if (statusDialogue) {
+    const dialoguesArray = await Dialogue.find({
+      $or: [{ userId: userId }, { productOwner: userId }],
+      statusDialogue: true,
+    });
+
+    const updatedDialoguesArray = [];
+    for (const dialogue of dialoguesArray) {
+      const productId = dialogue.productId;
+      const product = await Product.findById(productId);
+
+      let otherUserId = null;
+      const userOneId = dialogue.userId;
+      const userTwoId = dialogue.productOwner;
+      if (userId.toString() === userOneId.toString()) {
+        otherUserId = userTwoId;
+      } else {
+        otherUserId = userOneId;
+      }
+
+      const otherUser = await User.findById(otherUserId);
+
+      const updatedDialogue = {
+        ...dialogue._doc,
+        productInfo: product,
+        otherUserInfo: otherUser,
+      };
+      updatedDialoguesArray.push(updatedDialogue);
+    }
+
+    res.status(201).send({
+      dialoguesArray: updatedDialoguesArray,
+    });
+  } else {
+    const dialoguesArray = await Dialogue.find({
+      $or: [{ userId: userId }, { productOwner: userId }],
+      statusDialogue: false,
+    });
+
+    const updatedDialoguesArray = [];
+    for (const dialogue of dialoguesArray) {
+      const productId = dialogue.productId;
+      const product = await Product.findById(productId);
+
+      let otherUserId = null;
+      const userOneId = dialogue.userId;
+      const userTwoId = dialogue.productOwner;
+      if (userId.toString() === userOneId.toString()) {
+        otherUserId = userTwoId;
+      } else {
+        otherUserId = userOneId;
+      }
+
+      const otherUser = await User.findById(otherUserId);
+
+      const updatedDialogue = {
+        ...dialogue._doc,
+        productInfo: product,
+        otherUserInfo: otherUser,
+      };
+      updatedDialoguesArray.push(updatedDialogue);
+    }
+
+    res.status(201).send({
+      dialoguesArray: updatedDialoguesArray,
+    });
+  }
+};
+
+const checkUpdates = async () => {
+  const changeStream = Dialogue.watch();
+  changeStream.on("change", async (change) => {
+    const updateDescription = change.updateDescription;
+    if (
+      !updateDescription ||
+      !updateDescription.updatedFields ||
+      !updateDescription.updatedFields.messageArray
+    ) {
+      return;
+    } else {
+      const documentId = change.documentKey._id;
+      const currentDialogue = await Dialogue.findById(documentId);
+      const userOne = currentDialogue.userId;
+      const userTwo = currentDialogue.productOwner;
+      const productId = currentDialogue.productId;
+      const latestMessage =
+        currentDialogue.messageArray[currentDialogue.messageArray.length - 1];
+      let userReceiver = "";
+      if (String(userOne) === String(latestMessage.textOwner)) {
+        userReceiver = userTwo;
+      } else {
+        userReceiver = userOne;
+      }
+      await NewMessage.create({
+        messageArray: latestMessage,
+        userReceiver: userReceiver,
+        productId: productId,
+        dialogue: documentId,
+      });
+      const totalNewMessage = await NewMessage.countDocuments({ userReceiver });
+      await User.updateOne(
+        { _id: userReceiver },
+        { newMessage: totalNewMessage }
+      );
+    }
+  });
+};
+
+const checkUpdatesDialogueController = async (data) => {
+  const userId = data.userId;
+  const newMessage = data.newMessage;
+  console.log("Це дата в контроллері", userId, newMessage);
+  const currentUser = await User.findById(userId);
+  if (currentUser.newMessage !== newMessage) {
+    console.log("Need to update");
+    return { message: "Need to update" };
+  } else {
+    return { message: "No updates" };
+  }
+};
+
 module.exports = {
   createDialogueController,
   getDialogueController,
+  getAllDialoguesController,
+  checkUpdatesDialogueController,
+  checkUpdates,
 };

@@ -3,13 +3,13 @@ const { Schema, model } = require("mongoose");
 
 const { handleSaveErrors } = require("../helpers");
 
-const dialogueSchema = new Schema(
+const newMessageSchema = new Schema(
   {
     messageArray: {
       type: [Schema.Types.Mixed],
       default: [],
     },
-    userId: {
+    userReceiver: {
       type: Schema.Types.ObjectId,
       required: true,
     },
@@ -17,37 +17,25 @@ const dialogueSchema = new Schema(
       type: Schema.Types.ObjectId,
       required: true,
     },
-    productOwner: {
+    dialogue: {
       type: Schema.Types.ObjectId,
       required: true,
-    },
-    userAvatar: {
-      type: String,
-    },
-    productOwnerAvatar: {
-      type: String,
-    },
-    statusDialogue: {
-      type: Boolean,
-      default: true,
     },
   },
   { versionKey: false, timestamps: true }
 );
 
-dialogueSchema.post("save", handleSaveErrors);
+newMessageSchema.post("save", handleSaveErrors);
 
-const addDialogueSchema = Joi.object({
-  uid: Joi.string().required(),
-});
+const addNewMessageSchema = Joi.object({});
 
 const schemas = {
-  addDialogueSchema,
+  addNewMessageSchema,
 };
 
-const Dialogue = model("dialogue", dialogueSchema);
+const NewMessage = model("newMessage", newMessageSchema);
 
 module.exports = {
-  Dialogue,
+  NewMessage,
   schemas,
 };

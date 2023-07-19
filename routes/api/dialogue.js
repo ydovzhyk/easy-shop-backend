@@ -21,4 +21,11 @@ router.post(
   ctrlWrapper(ctrl.getDialogueController)
 );
 
+router.post(
+  "/getData",
+  authorize,
+  //   validateBody(schemas.verificationSchema),
+  ctrlWrapper(ctrl.getAllDialoguesController)
+);
+
 module.exports = router;

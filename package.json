@@ -34,9 +34,11 @@
         "passport": "^0.6.0",
         "passport-google-oauth2": "^0.2.0",
         "shortid": "^2.2.16",
+        "socket.io": "^4.7.1",
         "supertest": "^6.3.3",
         "swagger-ui-express": "^4.6.2",
-        "uuid": "^9.0.0"
+        "uuid": "^9.0.0",
+        "websocket": "^1.0.34"
     },
     "devDependencies": {
         "@types/node": "^20.3.1",
