@@ -153,20 +153,17 @@ const deleteDialogueController = async (req, res) => {
   const { dialogueId } = req.body;
   const userId = req.user._id;
 
-  console.log(dialogueId);
-  const dialogue = await Dialogue.findById(dialogueId);
-
-  dialogue.statusDialogue.forEach((status) => {
-    if (
-      status.userOne.toString() === userId.toString() ||
-      status.userTwo.toString() === userId.toString()
-    ) {
-      console.log("міняємо статус");
-      status.status = false;
-    }
+  const dialogue = await Dialogue.findOneAndUpdate({
+    _id: dialogueId,
   });
 
-  await dialogue.save();
+  const statusDialogue = dialogue.statusDialogue;
+
+  const newStatusDialogue = statusDialogue.map((el) => {
+    el.userOne.toString() === userId.toString;
+  });
+
+  console.log(statusDialogue);
 
   res.status(200).json({ message: "Dialogue status updated successfully" });
 };

@@ -194,26 +194,33 @@ const updateUserBasket = async (req, res, next) => {
   let updatedUserBasket = [];
   let productExists = false;
 
-  for (const item of userBasket) {
-    if (item.productId === productId) {
+  if (productId && selectedSizes) {
+    for (const item of userBasket) {
+      if (item.productId === productId) {
+        updatedUserBasket.push({
+          productId: productId,
+          selectedSizes: selectedSizes,
+        });
+        productExists = true;
+      } else {
+        updatedUserBasket.push(item);
+      }
+    }
+
+    if (!productExists) {
       updatedUserBasket.push({
         productId: productId,
         selectedSizes: selectedSizes,
       });
-      productExists = true;
-    } else {
-      updatedUserBasket.push(item);
     }
-  }
 
-  if (!productExists) {
-    updatedUserBasket.push({
-      productId: productId,
-      selectedSizes: selectedSizes,
-    });
+    userBasket = updatedUserBasket;
+  } else {
+    updatedUserBasket = userBasket.filter(
+      (item) => item.productId !== productId
+    );
+    userBasket = updatedUserBasket;
   }
-
-  userBasket = updatedUserBasket;
 
   const updatedUser = await User.findByIdAndUpdate(
     _id,
