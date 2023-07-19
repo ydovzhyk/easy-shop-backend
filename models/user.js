@@ -75,7 +75,7 @@ const userSchema = new Schema(
     },
     userProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     userBasket: {
-      type: [[Schema.Types.Mixed]],
+      type: [Schema.Types.Mixed],
       default: [],
     },
     userLikes: [{ type: Schema.Types.ObjectId, ref: "Product" }],

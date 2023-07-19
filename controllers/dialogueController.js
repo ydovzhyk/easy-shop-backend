@@ -2,6 +2,7 @@ const { Dialogue } = require("../models/dialogue");
 const { User } = require("../models/user");
 const { Product } = require("../models/product");
 const { NewMessage } = require("../models/newMessage");
+const mongoose = require("mongoose");
 
 const { RequestError } = require("../helpers/");
 const moment = require("moment");
@@ -25,9 +26,12 @@ const createDialogueController = async (req, res) => {
       userId,
       userAvatar: req.user.userAvatar,
       productId,
-      productOwner,
+      productOwner: mongoose.Types.ObjectId(productOwner),
       productOwnerAvatar: isProductOwner.userAvatar,
-      statusDialogue: true,
+      statusDialogue: [
+        { userOne: userId, status: true },
+        { userTwo: mongoose.Types.ObjectId(productOwner), status: true },
+      ],
     });
 
     const updatedUser = await User.findOneAndUpdate(
@@ -99,73 +103,59 @@ const getAllDialoguesController = async (req, res) => {
   const { statusDialogue } = req.body;
   const userId = req.user._id;
 
+  let dialoguesArray = [];
   if (statusDialogue) {
-    const dialoguesArray = await Dialogue.find({
-      $or: [{ userId: userId }, { productOwner: userId }],
-      statusDialogue: true,
-    });
-
-    const updatedDialoguesArray = [];
-    for (const dialogue of dialoguesArray) {
-      const productId = dialogue.productId;
-      const product = await Product.findById(productId);
-
-      let otherUserId = null;
-      const userOneId = dialogue.userId;
-      const userTwoId = dialogue.productOwner;
-      if (userId.toString() === userOneId.toString()) {
-        otherUserId = userTwoId;
-      } else {
-        otherUserId = userOneId;
-      }
-
-      const otherUser = await User.findById(otherUserId);
-
-      const updatedDialogue = {
-        ...dialogue._doc,
-        productInfo: product,
-        otherUserInfo: otherUser,
-      };
-      updatedDialoguesArray.push(updatedDialogue);
-    }
-
-    res.status(201).send({
-      dialoguesArray: updatedDialoguesArray,
-    });
-  } else {
-    const dialoguesArray = await Dialogue.find({
-      $or: [{ userId: userId }, { productOwner: userId }],
-      statusDialogue: false,
-    });
-
-    const updatedDialoguesArray = [];
-    for (const dialogue of dialoguesArray) {
-      const productId = dialogue.productId;
-      const product = await Product.findById(productId);
-
-      let otherUserId = null;
-      const userOneId = dialogue.userId;
-      const userTwoId = dialogue.productOwner;
-      if (userId.toString() === userOneId.toString()) {
-        otherUserId = userTwoId;
-      } else {
-        otherUserId = userOneId;
-      }
-
-      const otherUser = await User.findById(otherUserId);
-
-      const updatedDialogue = {
-        ...dialogue._doc,
-        productInfo: product,
-        otherUserInfo: otherUser,
-      };
-      updatedDialoguesArray.push(updatedDialogue);
-    }
-
-    res.status(201).send({
-      dialoguesArray: updatedDialoguesArray,
+    dialoguesArray = await Dialogue.find({
+      $or: [
+        {
+          "statusDialogue.userOne": userId,
+          "statusDialogue.status": statusDialogue,
+        },
+        {
+          "statusDialogue.userTwo": userId,
+          "statusDialogue.status": statusDialogue,
+        },
+      ],
     });
   }
+  console.log(dialoguesArray.length);
+
+  const updatedDialoguesArray = [];
+  for (const dialogue of dialoguesArray) {
+    const productId = dialogue.productId;
+    const product = await Product.findById(productId);
+
+    let otherUserId = null;
+    const userOneId = dialogue.userId;
+    const userTwoId = dialogue.productOwner;
+    if (userId.toString() === userOneId.toString()) {
+      otherUserId = userTwoId;
+    } else {
+      otherUserId = userOneId;
+    }
+
+    const otherUser = await User.findById(otherUserId);
+
+    const updatedDialogue = {
+      ...dialogue._doc,
+      productInfo: product,
+      otherUserInfo: otherUser,
+    };
+    updatedDialoguesArray.push(updatedDialogue);
+  }
+
+  res.status(201).send({
+    dialoguesArray: updatedDialoguesArray,
+  });
+};
+
+const deleteDialogueController = async (req, res) => {
+  const { dialogueId } = req.body;
+  const userId = req.user._id;
+
+  const reqDialogue = await Dialogue.find({
+    _id: dialogueId,
+  });
 };
 
 const checkUpdates = async () => {
@@ -224,6 +214,7 @@ module.exports = {
   createDialogueController,
   getDialogueController,
   getAllDialoguesController,
+  deleteDialogueController,
   checkUpdatesDialogueController,
   checkUpdates,
 };
