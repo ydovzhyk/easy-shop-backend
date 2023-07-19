@@ -3,6 +3,10 @@ const logger = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 require("dotenv").config();
+const dialogueController = require("./controllers/dialogueController");
+// WS Server
+const http = require("http");
+const WebSocket = require("ws");
 
 const authRouter = require("./routes/api/auth");
 const googleRouter = require("./routes/api/google");
@@ -63,5 +67,96 @@ app.use((err, req, res, next) => {
     message,
   });
 });
+
+// WS Server
+
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// Об'єкт для зберігання WebSocket-з'єднань за їхнім ID
+const connectedClients = {};
+
+// Опрацювання підключення до WebSocket сервера
+wss.on("connection", (ws) => {
+  // Генерування унікального ID для підключення
+  const connectionId = generateConnectionId();
+
+  console.log("Нове підключення WebSocket. ID:", connectionId);
+
+  // Збереження WebSocket-з'єднання в об'єкті connectedClients
+  connectedClients[connectionId] = ws;
+
+  // Опрацювання повідомлень, що надходять до WebSocket сервера
+  ws.on("message", async (message) => {
+    // Отримання ID підключення відправника
+    const senderId = findConnectionIdByWebSocket(ws);
+
+    // Отримання WebSocket-з'єднання відправника
+    const senderWebSocket = connectedClients[senderId];
+
+    // Код для обробки повідомлення та підготовки відповіді
+    const response = await dialogueController.checkUpdatesDialogueController(
+      JSON.parse(message.toString())
+    );
+
+    // Відправка відповіді конкретному клієнту
+    if (senderWebSocket && senderWebSocket.readyState === WebSocket.OPEN) {
+      senderWebSocket.send(JSON.stringify(response.message));
+    }
+  });
+
+  // Обробник події закриття WebSocket-з'єднання
+  ws.on("close", () => {
+    // Видалення WebSocket-з'єднання з об'єкта connectedClients
+    delete connectedClients[findConnectionIdByWebSocket(ws)];
+  });
+});
+
+// Розпочати слухання на порті
+const port = process.env.PORT_WS || 5000;
+server.listen(port, () => {
+  console.log(`Сервер слухає на порті ${port}`);
+});
+
+// Функція для генерації унікального ID підключення
+function generateConnectionId() {
+  return Math.random().toString(36).substr(2, 9);
+}
+
+// Функція для пошуку ID підключення за WebSocket-з'єднанням
+function findConnectionIdByWebSocket(ws) {
+  return Object.keys(connectedClients).find(
+    (id) => connectedClients[id] === ws
+  );
+}
+
+// const server = http.createServer(app);
+// const wss = new WebSocket.Server({ server });
+
+// // Опрацювання підключення до WebSocket сервера
+// wss.on("connection", (ws) => {
+//   console.log("Нове підключення WebSocket");
+
+//   // Опрацювання повідомлень, що надходять до WebSocket сервера
+//   ws.on("message", (message) => {
+//     console.log(JSON.parse(message.toString()));
+//     const response = dialogueController.checkUpdatesDialogueController(
+//       JSON.parse(message.toString())
+//     );
+
+//     // Розсилка повідомлень до всіх підключених клієнтів
+//     wss.clients.forEach((client) => {
+//       if (client !== ws && client.readyState === WebSocket.OPEN) {
+//         client.send(message);
+//       }
+//     });
+//   });
+// });
+
+// // Розпочати слухання на порті
+// const port = process.env.PORT_WS || 5000;
+// server.listen(port, () => {
+//   console.log(`Сервер слухає на порті ${port}`);
+// });
 
 module.exports = app;
