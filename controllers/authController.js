@@ -191,11 +191,22 @@ const updateUserBasket = async (req, res, next) => {
 
   let userBasket = user.userBasket || [];
 
-  let updatedUserBasket = userBasket.filter((item) => {
-    return item[0].productId !== productId;
-  });
+  let updatedUserBasket = [];
+  let productExists = false;
 
-  if (updatedUserBasket.length === userBasket.length) {
+  for (const item of userBasket) {
+    if (item[0].productId === productId) {
+      updatedUserBasket.push({
+        productId: productId,
+        selectedSizes: selectedSizes,
+      });
+      productExists = true;
+    } else {
+      updatedUserBasket.push(item);
+    }
+  }
+
+  if (!productExists) {
     updatedUserBasket.push({
       productId: productId,
       selectedSizes: selectedSizes,
