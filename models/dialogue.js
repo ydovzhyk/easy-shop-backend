@@ -28,8 +28,8 @@ const dialogueSchema = new Schema(
       type: String,
     },
     statusDialogue: {
-      type: Boolean,
-      default: true,
+      type: [Schema.Types.Mixed],
+      default: [],
     },
   },
   { versionKey: false, timestamps: true }

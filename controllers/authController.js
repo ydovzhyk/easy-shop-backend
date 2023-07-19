@@ -188,6 +188,7 @@ const updateUserBasket = async (req, res, next) => {
   const { _id } = req.user;
   const user = await User.findOne({ _id });
   const { productId, selectedSizes } = req.body;
+  console.log("Приходить selectedSizes", selectedSizes);
 
   let userBasket = user.userBasket || [];
 
@@ -195,7 +196,7 @@ const updateUserBasket = async (req, res, next) => {
   let productExists = false;
 
   for (const item of userBasket) {
-    if (item[0].productId === productId) {
+    if (item.productId === productId) {
       updatedUserBasket.push({
         productId: productId,
         selectedSizes: selectedSizes,
@@ -223,7 +224,7 @@ const updateUserBasket = async (req, res, next) => {
 
   const lastBasket = updatedUser.userBasket;
   const productIds = lastBasket.map((item) => {
-    return item[0].productId;
+    return item.productId;
   });
   const basketProducts = await Product.find({ _id: { $in: productIds } });
 

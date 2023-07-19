@@ -28,4 +28,11 @@ router.post(
   ctrlWrapper(ctrl.getAllDialoguesController)
 );
 
+router.post(
+  "/delete",
+  authorize,
+  //   validateBody(schemas.verificationSchema),
+  ctrlWrapper(ctrl.deleteDialogueController)
+);
+
 module.exports = router;
