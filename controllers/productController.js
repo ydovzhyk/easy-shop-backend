@@ -382,14 +382,15 @@ const getProductByIdController = async (req, res, next) => {
 //get Product from Basket
 const getProductFromBasketController = async (req, res, next) => {
   const { ownerId } = req.params;
+
   try {
     const user = await User.findById(ownerId);
+
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
     const productIds = user.userBasket.map((item) => {
-      return item[0].productId;
+      return item.productId;
     });
 
     const products = await Product.find({ _id: { $in: productIds } });

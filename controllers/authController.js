@@ -188,7 +188,6 @@ const updateUserBasket = async (req, res, next) => {
   const { _id } = req.user;
   const user = await User.findOne({ _id });
   const { productId, selectedSizes } = req.body;
-  console.log("Приходить selectedSizes", selectedSizes);
 
   let userBasket = user.userBasket || [];
 
