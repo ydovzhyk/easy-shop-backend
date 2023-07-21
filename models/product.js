@@ -85,7 +85,6 @@ const productSchema = new Schema(
     sale: {
       type: Number,
     },
-    userDialogue: [{ type: Schema.Types.ObjectId, ref: "Dialogue" }],
   },
   { minimize: false }
 );
