@@ -46,12 +46,6 @@ const createDialogueController = async (req, res) => {
       { new: true }
     );
 
-    await Product.findOneAndUpdate(
-      { _id: productId },
-      { $push: { userDialogue: newDialogue._id } },
-      { new: true }
-    );
-
     res.status(201).send({
       user: updatedUser,
       userDialogue: newDialogue,
@@ -80,21 +74,27 @@ const createDialogueController = async (req, res) => {
 };
 
 const getDialogueController = async (req, res) => {
-  const { productId } = req.body;
+  const { productId, dialogueId } = req.body;
   const userId = req.user._id;
 
-  const reqDialogue = await Dialogue.find({
-    $or: [{ userId: userId }, { productOwner: userId }],
-    productId: productId,
-  });
+  let reqDialogue = [];
 
-  if (reqDialogue.length === 0) {
+  if (productId && !dialogueId) {
+    reqDialogue = await Dialogue.findOne({
+      $or: [{ userId: userId }, { productOwner: userId }],
+      productId: productId,
+    });
+  } else {
+    reqDialogue = await Dialogue.findOne({ _id: dialogueId });
+  }
+
+  if (reqDialogue === null) {
     res.status(201).send({
       userDialogue: [],
     });
   } else {
     res.status(201).send({
-      userDialogue: reqDialogue[0],
+      userDialogue: reqDialogue,
     });
   }
 };
@@ -104,21 +104,26 @@ const getAllDialoguesController = async (req, res) => {
   const userId = req.user._id;
 
   let dialoguesArray = [];
-  if (statusDialogue) {
-    dialoguesArray = await Dialogue.find({
-      $or: [
-        {
-          "statusDialogue.userOne": userId,
-          "statusDialogue.status": statusDialogue,
+  dialoguesArray = await Dialogue.find({
+    $or: [
+      {
+        statusDialogue: {
+          $elemMatch: {
+            userOne: userId,
+            status: statusDialogue,
+          },
         },
-        {
-          "statusDialogue.userTwo": userId,
-          "statusDialogue.status": statusDialogue,
+      },
+      {
+        statusDialogue: {
+          $elemMatch: {
+            userTwo: userId,
+            status: statusDialogue,
+          },
         },
-      ],
-    });
-  }
-  console.log(dialoguesArray.length);
+      },
+    ],
+  });
 
   const updatedDialoguesArray = [];
   for (const dialogue of dialoguesArray) {
@@ -153,19 +158,62 @@ const deleteDialogueController = async (req, res) => {
   const { dialogueId } = req.body;
   const userId = req.user._id;
 
-  const dialogue = await Dialogue.findOneAndUpdate({
+  const dialogue = await Dialogue.findOne({
     _id: dialogueId,
   });
 
   const statusDialogue = dialogue.statusDialogue;
 
-  const newStatusDialogue = statusDialogue.map((el) => {
-    el.userOne.toString() === userId.toString;
-  });
+  let newStatusDialogue = [];
+  let numberOperation = [];
 
-  console.log(statusDialogue);
+  for (const el of statusDialogue) {
+    if (
+      (el.userOne ? el.userOne.toString() : el.userOne) === userId.toString() &&
+      el.status === true
+    ) {
+      newStatusDialogue.push({ userOne: el.userOne, status: false });
+      numberOperation.push(1);
+    } else if (
+      (el.userTwo ? el.userTwo.toString() : el.userTwo) === userId.toString() &&
+      el.status === true
+    ) {
+      newStatusDialogue.push({ userTwo: el.userTwo, status: false });
+      numberOperation.push(2);
+    } else if (
+      (el.userOne ? el.userOne.toString() : el.userOne) === userId.toString() &&
+      el.status === false
+    ) {
+      newStatusDialogue.push({ userOne: null, status: null });
+      numberOperation.push(3);
+    } else if (
+      (el.userTwo ? el.userTwo.toString() : el.userTwo) === userId.toString() &&
+      el.status === false
+    ) {
+      newStatusDialogue.push({ userTwo: null, status: null });
+      numberOperation.push(4);
+    } else {
+      newStatusDialogue.push(el);
+      numberOperation.push(5);
+    }
+  }
 
-  res.status(200).json({ message: "Dialogue status updated successfully" });
+  await Dialogue.findOneAndUpdate(
+    {
+      _id: dialogueId,
+    },
+    {
+      $set: { statusDialogue: newStatusDialogue },
+    }
+  );
+
+  if (numberOperation.includes(1) || numberOperation.includes(2)) {
+    res
+      .status(200)
+      .json({ message: "You can find your dialogue in the archive" });
+  } else if (numberOperation.includes(3) || numberOperation.includes(4)) {
+    res.status(200).json({ message: "You have left a dialog with the user" });
+  }
 };
 
 const checkUpdates = async () => {
