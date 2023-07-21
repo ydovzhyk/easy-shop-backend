@@ -38,8 +38,8 @@ router.delete(
 );
 
 // get user orders
-router.get(
-  "/user-orders/:userId",
+router.post(
+  "/user-orders",
   authorize,
   ctrlWrapper(ctrl.getUserOrdersController)
 );

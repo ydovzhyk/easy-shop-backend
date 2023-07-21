@@ -48,6 +48,10 @@ const orderSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    orderNumber: {
+      type: String,
+      default: "",
+    },
   },
   { minimize: false }
 );
@@ -60,15 +64,15 @@ const addOrderSchema = Joi.object({
   ownerName: Joi.string().required(),
   ownerId: Joi.string().required(),
   products: Joi.array()
-    // .items(
-    //   Joi.object({
-    //     price: Joi.number().required(),
-    //     quantity: Joi.number().required(),
-    //     size: Joi.array().required(),
-    //     sum: Joi.number().required(),
-    //     _id: Joi.string().required(),
-    //   })
-    // )
+    .items(
+      Joi.object({
+        price: Joi.number().required(),
+        quantity: Joi.number().required(),
+        size: Joi.array().required(),
+        sum: Joi.number().required(),
+        _id: Joi.string().required(),
+      })
+    )
     .required(),
   totalSum: Joi.number().required(),
 });
@@ -78,15 +82,15 @@ const updateOrderSchema = Joi.object({
   sellerName: Joi.string().required(),
   sellerId: Joi.string().required(),
   products: Joi.array()
-    // .items(
-    //   Joi.object({
-    //     price: Joi.number().required(),
-    //     quantity: Joi.number().required(),
-    //     size: Joi.array().required(),
-    //     sum: Joi.number().required(),
-    //     _id: Joi.string().required(),
-    //   })
-    // )
+    .items(
+      Joi.object({
+        price: Joi.number().required(),
+        quantity: Joi.number().required(),
+        size: Joi.array().required(),
+        sum: Joi.number().required(),
+        _id: Joi.string().required(),
+      })
+    )
     .required(),
   totalSum: Joi.number().required(),
   customerId: Joi.string().required(),
@@ -95,6 +99,7 @@ const updateOrderSchema = Joi.object({
   customerSecondName: Joi.string().required(),
   delivery: Joi.string().required(),
   customerTel: Joi.string().required(),
+  orderNumber: Joi.string().required(),
 });
 
 

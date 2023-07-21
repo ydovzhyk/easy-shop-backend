@@ -33,18 +33,19 @@ const addOrderController = async (req, res) => {
 const updateOrderController = async (req, res) => {
     // const { orderId } = req.params;
   const {
-      orderId,
-      sellerName,
-      sellerId,
-      products,
-      totalSum,
-      customerId,
-      customerFirstName,
-      customerSurName,
-      customerSecondName,
-      delivery,
-      customerTel,
-    } = req.body;
+    orderId,
+    sellerName,
+    sellerId,
+    products,
+    totalSum,
+    customerId,
+    customerFirstName,
+    customerSurName,
+    customerSecondName,
+    delivery,
+    customerTel,
+    orderNumber,
+  } = req.body;
     // console.log("req.body", req.body);
     const order = await Order.findById(orderId);
 
@@ -69,6 +70,7 @@ const updateOrderController = async (req, res) => {
           customerTel: customerTel ? customerTel : order.customerTel,
         },
         delivery: delivery ? delivery : order.delivery,
+        orderNumber: orderNumber ? orderNumber : order.orderNumber,
       },
       { new: true }
     );  
@@ -123,14 +125,24 @@ const deleteOrderController = async (req, res) => {
 
 // get User orders
 const getUserOrdersController = async (req, res) => {
-  const { userId } = req.params;
-  console.log(userId);
-  // const { _id: userId } = req.user;
-  // console.log(req.user);
+  const { _id: userId } = req.user;
+  // console.log(userId);
+  const page = req.query.page || 1;
+  const limit = 5;
   
-  const userOrders = await Order.find({ "client.customerId": userId });
+  const count = await Order.countDocuments({ "client.customerId": userId });
+  const totalPages = Math.ceil(count / limit);
+  const skip = (page - 1) * limit;
+  
+  const userOrders = await Order.find({ "client.customerId": userId })
+    .skip(skip)
+    .limit(limit);
 
-  res.status(200).json(userOrders);
+  res.status(200).json({
+    userOrders,
+    totalPages,
+    totalUserOrders: count,
+  });
 };
 
 module.exports = {
