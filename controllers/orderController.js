@@ -133,13 +133,13 @@ const getUserOrdersController = async (req, res) => {
   const count = await Order.countDocuments({ "client.customerId": userId });
   const totalPages = Math.ceil(count / limit);
   const skip = (page - 1) * limit;
-  
+
   const userOrders = await Order.find({ "client.customerId": userId })
     .skip(skip)
     .limit(limit);
 
   res.status(200).json({
-    userOrders,
+    orders: userOrders,
     totalPages,
     totalUserOrders: count,
   });
