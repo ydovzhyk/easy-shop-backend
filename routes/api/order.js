@@ -37,4 +37,11 @@ router.delete(
   ctrlWrapper(ctrl.deleteOrderController)
 );
 
+// get user orders
+router.get(
+  "/user-orders/:userId",
+  authorize,
+  ctrlWrapper(ctrl.getUserOrdersController)
+);
+
 module.exports = router;

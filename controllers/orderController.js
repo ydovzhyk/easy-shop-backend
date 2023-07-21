@@ -45,7 +45,7 @@ const updateOrderController = async (req, res) => {
       delivery,
       customerTel,
     } = req.body;
-    console.log("req.body", req.body);
+    // console.log("req.body", req.body);
     const order = await Order.findById(orderId);
 
     const updatedOrder = await Order.findOneAndUpdate(
@@ -72,7 +72,7 @@ const updateOrderController = async (req, res) => {
       },
       { new: true }
     );  
-console.log("updatedOrder", updatedOrder);
+// console.log("updatedOrder", updatedOrder);
   res.status(200).json({
     message: "Order formed successfully",
     updatedOrder,
@@ -121,10 +121,23 @@ const deleteOrderController = async (req, res) => {
   res.status(200).json({ message: "Order deleted" });
 };
 
+// get User orders
+const getUserOrdersController = async (req, res) => {
+  const { userId } = req.params;
+  console.log(userId);
+  // const { _id: userId } = req.user;
+  // console.log(req.user);
+  
+  const userOrders = await Order.find({ "client.customerId": userId });
+
+  res.status(200).json(userOrders);
+};
+
 module.exports = {
   addOrderController,
   updateOrderController,
   getOrderByIdController,
   getOrdersController,
   deleteOrderController,
+  getUserOrdersController,
 };
