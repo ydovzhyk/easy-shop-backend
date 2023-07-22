@@ -2,11 +2,13 @@ const { User } = require("../models/user");
 const { Order } = require("../models/order");
 
 const { RequestError } = require("../helpers");
+const moment = require("moment");
 
 const addOrderController = async (req, res) => {
   const { _id: owner } = req.user;
   const { ownerName, ownerId, products, totalSum } = req.body;
-    
+  const currentDate = moment().format("DD.MM.YYYY HH:mm");  
+  
   const newOrder = await Order.create({
     sellerName: ownerName,
     sellerId: ownerId,
@@ -15,6 +17,7 @@ const addOrderController = async (req, res) => {
     client: {
       customerId: owner,
     },
+    orderDate: currentDate,
   });
 
   const updatedUser = await User.findOneAndUpdate(

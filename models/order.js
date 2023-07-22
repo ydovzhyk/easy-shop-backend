@@ -52,6 +52,10 @@ const orderSchema = new Schema(
       type: String,
       default: "",
     },
+    orderDate: {
+      type: String,
+      default: "",
+    },
   },
   { minimize: false }
 );
