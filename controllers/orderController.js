@@ -2,11 +2,13 @@ const { User } = require("../models/user");
 const { Order } = require("../models/order");
 
 const { RequestError } = require("../helpers");
+const moment = require("moment");
 
 const addOrderController = async (req, res) => {
   const { _id: owner } = req.user;
   const { ownerName, ownerId, products, totalSum } = req.body;
-    
+  const currentDate = moment().format("DD.MM.YYYY HH:mm");  
+  
   const newOrder = await Order.create({
     sellerName: ownerName,
     sellerId: ownerId,
@@ -15,6 +17,7 @@ const addOrderController = async (req, res) => {
     client: {
       customerId: owner,
     },
+    orderDate: currentDate,
   });
 
   const updatedUser = await User.findOneAndUpdate(
@@ -33,19 +36,20 @@ const addOrderController = async (req, res) => {
 const updateOrderController = async (req, res) => {
     // const { orderId } = req.params;
   const {
-      orderId,
-      sellerName,
-      sellerId,
-      products,
-      totalSum,
-      customerId,
-      customerFirstName,
-      customerSurName,
-      customerSecondName,
-      delivery,
-      customerTel,
-    } = req.body;
-    console.log("req.body", req.body);
+    orderId,
+    sellerName,
+    sellerId,
+    products,
+    totalSum,
+    customerId,
+    customerFirstName,
+    customerSurName,
+    customerSecondName,
+    delivery,
+    customerTel,
+    orderNumber,
+  } = req.body;
+    // console.log("req.body", req.body);
     const order = await Order.findById(orderId);
 
     const updatedOrder = await Order.findOneAndUpdate(
@@ -69,10 +73,11 @@ const updateOrderController = async (req, res) => {
           customerTel: customerTel ? customerTel : order.customerTel,
         },
         delivery: delivery ? delivery : order.delivery,
+        orderNumber: orderNumber ? orderNumber : order.orderNumber,
       },
       { new: true }
     );  
-console.log("updatedOrder", updatedOrder);
+// console.log("updatedOrder", updatedOrder);
   res.status(200).json({
     message: "Order formed successfully",
     updatedOrder,
@@ -121,10 +126,33 @@ const deleteOrderController = async (req, res) => {
   res.status(200).json({ message: "Order deleted" });
 };
 
+// get User orders
+const getUserOrdersController = async (req, res) => {
+  const { _id: userId } = req.user;
+  // console.log(userId);
+  const page = req.query.page || 1;
+  const limit = 5;
+  
+  const count = await Order.countDocuments({ "client.customerId": userId });
+  const totalPages = Math.ceil(count / limit);
+  const skip = (page - 1) * limit;
+
+  const userOrders = await Order.find({ "client.customerId": userId })
+    .skip(skip)
+    .limit(limit);
+
+  res.status(200).json({
+    orders: userOrders,
+    totalPages,
+    totalUserOrders: count,
+  });
+};
+
 module.exports = {
   addOrderController,
   updateOrderController,
   getOrderByIdController,
   getOrdersController,
   deleteOrderController,
+  getUserOrdersController,
 };
