@@ -295,7 +295,7 @@ const getUserLikesBasket = async (req, res, next) => {
   });
 
   const productIds = userBasket.map((item) => {
-    return item[0].productId;
+    return item.productId;
   });
   const basketProducts = await Product.find({ _id: { $in: productIds } });
 
