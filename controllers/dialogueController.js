@@ -1,7 +1,6 @@
 const { Dialogue } = require("../models/dialogue");
 const { User } = require("../models/user");
 const { Product } = require("../models/product");
-const { NewMessage } = require("../models/newMessage");
 const mongoose = require("mongoose");
 
 const { RequestError } = require("../helpers/");
@@ -14,12 +13,24 @@ const createDialogueController = async (req, res) => {
 
   const currentDate = moment().format("DD.MM.YYYY HH:mm");
 
-  const isDialogue = await Dialogue.find({
+  const isDialogue = await Dialogue.findOne({
     _id: dialogueId,
     productId: productId,
+    $and: [
+      {
+        statusDialogue: {
+          $elemMatch: {
+            $or: [
+              { userOne: userId, status: true },
+              { userTwo: userId, status: true },
+            ],
+          },
+        },
+      },
+    ],
   });
 
-  if (isDialogue.length === 0) {
+  if (!isDialogue) {
     const isProductOwner = await User.findById(productOwner);
     const newDialogue = await Dialogue.create({
       messageArray: { text: text, date: currentDate, textOwner: userId },
@@ -32,18 +43,35 @@ const createDialogueController = async (req, res) => {
         { userOne: userId, status: true },
         { userTwo: mongoose.Types.ObjectId(productOwner), status: true },
       ],
+      newMessages: [
+        {
+          userReceiver: productOwner,
+          message: text,
+          date: currentDate,
+        },
+      ],
     });
 
     const updatedUser = await User.findOneAndUpdate(
       { _id: userId },
-      { $push: { userDialogue: newDialogue._id, productId: productId } },
+      { $push: { userDialogue: newDialogue._id } },
       { new: true }
     );
 
+    const updatedReciverUser = await User.findOneAndUpdate(
+      { _id: productOwner },
+      {
+        $push: { userDialogue: newDialogue._id },
+      },
+      { new: true }
+    );
+
+    let newMessageValue = parseInt(updatedReciverUser.newMessage);
+    newMessageValue += 1;
+
     await User.findOneAndUpdate(
       { _id: productOwner },
-      { $push: { userDialogue: newDialogue._id, productId: productId } },
-      { new: true }
+      { newMessage: newMessageValue.toString() }
     );
 
     res.status(201).send({
@@ -51,8 +79,19 @@ const createDialogueController = async (req, res) => {
       userDialogue: newDialogue,
     });
   } else {
+    console.log("Зайшли продовжити діалог");
+    let userReceiver = null;
+    const userOne = isDialogue.userId;
+    const userTwo = isDialogue.productOwner;
+
+    if (userOne.toString() === userId.toString()) {
+      userReceiver = userTwo;
+    } else {
+      userReceiver = userOne;
+    }
+
     const updatedMessageArray = [
-      ...isDialogue[0].messageArray,
+      ...isDialogue.messageArray,
       {
         text: text,
         date: currentDate,
@@ -60,10 +99,33 @@ const createDialogueController = async (req, res) => {
       },
     ];
 
+    const updatedNewMessages = [
+      ...isDialogue.newMessages,
+      {
+        userReceiver: userReceiver,
+        message: text,
+        date: currentDate,
+      },
+    ];
+
     const updatedDialogue = await Dialogue.findOneAndUpdate(
-      { _id: isDialogue[0]._id },
-      { messageArray: updatedMessageArray },
+      { _id: isDialogue._id },
+      { messageArray: updatedMessageArray, newMessages: updatedNewMessages },
       { new: true }
+    );
+
+    const updatedReciverUser = await User.findOne({ _id: userReceiver });
+
+    console.log(updatedReciverUser);
+
+    let newMessageValue = parseInt(updatedReciverUser.newMessage);
+    newMessageValue += 1;
+
+    console.log(newMessageValue);
+
+    await User.findOneAndUpdate(
+      { _id: userReceiver },
+      { newMessage: newMessageValue.toString() }
     );
 
     res.status(201).send({
@@ -83,12 +145,38 @@ const getDialogueController = async (req, res) => {
     reqDialogue = await Dialogue.findOne({
       $or: [{ userId: userId }, { productOwner: userId }],
       productId: productId,
+      $and: [
+        {
+          statusDialogue: {
+            $elemMatch: {
+              $or: [
+                { userOne: userId, status: true },
+                { userTwo: userId, status: true },
+              ],
+            },
+          },
+        },
+      ],
     });
   } else {
-    reqDialogue = await Dialogue.findOne({ _id: dialogueId });
+    reqDialogue = await Dialogue.findOne({
+      _id: dialogueId,
+      $and: [
+        {
+          statusDialogue: {
+            $elemMatch: {
+              $or: [
+                { userOne: userId, status: true },
+                { userTwo: userId, status: true },
+              ],
+            },
+          },
+        },
+      ],
+    });
   }
 
-  if (reqDialogue === null) {
+  if (!reqDialogue) {
     res.status(201).send({
       userDialogue: [],
     });
@@ -216,44 +304,53 @@ const deleteDialogueController = async (req, res) => {
   }
 };
 
-const checkUpdates = async () => {
-  const changeStream = Dialogue.watch();
-  changeStream.on("change", async (change) => {
-    const updateDescription = change.updateDescription;
-    if (
-      !updateDescription ||
-      !updateDescription.updatedFields ||
-      !updateDescription.updatedFields.messageArray
-    ) {
-      return;
-    } else {
-      const documentId = change.documentKey._id;
-      const currentDialogue = await Dialogue.findById(documentId);
-      const userOne = currentDialogue.userId;
-      const userTwo = currentDialogue.productOwner;
-      const productId = currentDialogue.productId;
-      const latestMessage =
-        currentDialogue.messageArray[currentDialogue.messageArray.length - 1];
-      let userReceiver = "";
-      if (String(userOne) === String(latestMessage.textOwner)) {
-        userReceiver = userTwo;
-      } else {
-        userReceiver = userOne;
-      }
-      await NewMessage.create({
-        messageArray: latestMessage,
-        userReceiver: userReceiver,
-        productId: productId,
-        dialogue: documentId,
-      });
-      const totalNewMessage = await NewMessage.countDocuments({ userReceiver });
-      await User.updateOne(
-        { _id: userReceiver },
-        { newMessage: totalNewMessage }
-      );
-    }
-  });
-};
+// const checkUpdates = async () => {
+//   const changeStream = Dialogue.watch();
+//   changeStream.on("change", async (change) => {
+//     const updateDescription = change.updateDescription;
+//     if (
+//       !updateDescription ||
+//       !updateDescription.updatedFields ||
+//       !updateDescription.updatedFields.messageArray
+//     ) {
+//       return;
+//     } else {
+//       const documentId = change.documentKey._id;
+//       const currentDialogue = await Dialogue.findById(documentId);
+//       const userOne = currentDialogue.userId;
+//       const userTwo = currentDialogue.productOwner;
+//       const productId = currentDialogue.productId;
+//       const latestMessage =
+//         currentDialogue.messageArray[currentDialogue.messageArray.length - 1];
+//       let userReceiver = "";
+//       if (String(userOne) === String(latestMessage.textOwner)) {
+//         userReceiver = userTwo;
+//       } else {
+//         userReceiver = userOne;
+//       }
+//       const newMessage = {
+//         messageArray: latestMessage,
+//         userReceiver: userReceiver,
+//         productId: productId,
+//       };
+
+//       console.log(newMessage);
+
+//       const updatedDialogue = await Dialogue.findByIdAndUpdate(
+//         documentId,
+//         { $push: { newMessages: newMessage } },
+//         { new: true }
+//       );
+
+//       console.log(updatedDialogue);
+//       const totalNewMessage = await NewMessage.countDocuments({ userReceiver });
+//       await User.updateOne(
+//         { _id: userReceiver },
+//         { newMessage: totalNewMessage }
+//       );
+//     }
+//   });
+// };
 
 const checkUpdatesDialogueController = async (data) => {
   const userId = data.userId;
@@ -274,5 +371,5 @@ module.exports = {
   getAllDialoguesController,
   deleteDialogueController,
   checkUpdatesDialogueController,
-  checkUpdates,
+  // checkUpdates,
 };
