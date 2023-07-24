@@ -31,6 +31,10 @@ const dialogueSchema = new Schema(
       type: [Schema.Types.Mixed],
       default: [],
     },
+    newMessages: {
+      type: [Schema.Types.Mixed],
+      default: [],
+    },
   },
   { versionKey: false, timestamps: true }
 );

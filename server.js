@@ -8,7 +8,7 @@ const { DB_HOST, PORT = 4000 } = process.env;
 mongoose
   .connect(DB_HOST)
   .then(() => {
-    dialogueController.checkUpdates(); // Виклик функції checkUpdates() після підключення до бази даних
+    // dialogueController.checkUpdates(); // Виклик функції checkUpdates() після підключення до бази даних
     app.listen(PORT, () => console.log("Server started on port", PORT));
   })
   .catch((error) => {
