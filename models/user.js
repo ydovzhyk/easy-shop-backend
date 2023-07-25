@@ -82,7 +82,7 @@ const userSchema = new Schema(
     userDialogue: [{ type: Schema.Types.ObjectId, ref: "Dialogue" }],
     userOrders: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
     newMessage: {
-      type: String,
+      type: Number,
       default: 0,
     },
   },
