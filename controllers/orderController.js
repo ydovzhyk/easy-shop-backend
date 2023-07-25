@@ -124,7 +124,18 @@ const getOrderByIdController = async (req, res, next) => {
   if (!orderById) {
     return next(RequestError(404, "Not found"));
   }
-  return res.status(200).json(orderById);
+  const productInOrderArray = [];
+  for (const orderProduct of orderById.products) {
+    const productId = orderProduct._id;
+    const product = await Product.findById(productId);
+
+    productInOrderArray.push(product);
+  }
+  const updatedOrderById = {
+    order: orderById,
+    orderProductInfo: productInOrderArray,
+  };
+  return res.status(200).json(updatedOrderById);
 };
 
 const getOrdersController = async (req, res) => {
