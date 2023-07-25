@@ -1,11 +1,12 @@
 const { User } = require("../models/user");
 const { Order } = require("../models/order");
-
+const { Product } = require("../models/product");
 const { RequestError } = require("../helpers");
 const moment = require("moment");
 
 const addOrderController = async (req, res) => {
-  const { _id: owner } = req.user;
+  const { _id: owner, email, firstName, secondName, surName, tel } = req.user;
+  console.log(owner, email, firstName, secondName, surName, tel);
   const { ownerName, ownerId, products, totalSum } = req.body;
   const currentDate = moment().format("DD.MM.YYYY HH:mm");  
   
@@ -16,20 +17,51 @@ const addOrderController = async (req, res) => {
     orderSum: totalSum,
     client: {
       customerId: owner,
+      customerSecondName: secondName ? secondName : "",
+      customerFirstName: firstName ? firstName : "",
+      customerSurName: surName ? surName : "",
+      customerTel: tel ? tel : "",
     },
     orderDate: currentDate,
   });
-
+console.log("newOrder", newOrder);
   const updatedUser = await User.findOneAndUpdate(
     { _id: owner },
     { $push: { userOrders: newOrder._id } },
     { new: true }
   );
+  console.log("updatedUser", updatedUser);
+  console.log("newOrder._id", newOrder._id.toString());
+  const orderNumberFromId =   newOrder._id.toString().match(/\d+/g).join("").slice(0, 7);
+  console.log("orderNumberFromId", orderNumberFromId);
+
+  const updatedOrder = await Order.findOneAndUpdate(
+    { _id: newOrder._id },
+    {
+      orderNumber: orderNumberFromId ? orderNumberFromId : "",
+    },
+    { new: true }
+  );
+  console.log("updatedOrder", updatedOrder);
+  console.log("newOrder.products", newOrder.products);
+  const productInOrderArray = [];
+  for (const newOrderProduct of newOrder.products) {
+    const productId = newOrderProduct._id;
+    console.log("productId", productId);
+    const product = await Product.findById(productId);
+
+    productInOrderArray.push(product);
+  }
+  console.log("productInOrderArray", productInOrderArray);
+  const updatedNewOrder = {
+    order: updatedOrder,
+    orderProductInfo: productInOrderArray,
+  };
 
   res.status(200).json({
     message: "Order added successfully",
     newOrderId: newOrder._id,
-    newOrder,
+    newOrder: updatedNewOrder,
   });
 };
 
@@ -37,17 +69,17 @@ const updateOrderController = async (req, res) => {
     // const { orderId } = req.params;
   const {
     orderId,
-    sellerName,
-    sellerId,
-    products,
-    totalSum,
+    // sellerName,
+    // sellerId,
+    // products,
+    // totalSum,
     customerId,
     customerFirstName,
     customerSurName,
     customerSecondName,
     delivery,
     customerTel,
-    orderNumber,
+    // orderNumber,
   } = req.body;
     // console.log("req.body", req.body);
     const order = await Order.findById(orderId);
@@ -55,10 +87,10 @@ const updateOrderController = async (req, res) => {
     const updatedOrder = await Order.findOneAndUpdate(
       { _id: orderId },
       {
-        sellerName: sellerName ? sellerName : order.sellerName,
-        sellerId: sellerId ? sellerId : order.sellerId,
-        products: products ? products : order.products,
-        orderSum: totalSum ? totalSum : order.orderSum,
+        // sellerName: sellerName ? sellerName : order.sellerName,
+        // sellerId: sellerId ? sellerId : order.sellerId,
+        // products: products ? products : order.products,
+        // orderSum: totalSum ? totalSum : order.orderSum,
         client: {
           customerId: customerId ? customerId : order.customerId,
           customerSecondName: customerSecondName
@@ -73,7 +105,7 @@ const updateOrderController = async (req, res) => {
           customerTel: customerTel ? customerTel : order.customerTel,
         },
         delivery: delivery ? delivery : order.delivery,
-        orderNumber: orderNumber ? orderNumber : order.orderNumber,
+        // orderNumber: orderNumber ? orderNumber : order.orderNumber,
       },
       { new: true }
     );  
