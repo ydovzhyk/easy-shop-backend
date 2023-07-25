@@ -174,7 +174,7 @@ const getUserOrdersController = async (req, res) => {
   const { _id: userId } = req.user;
   // console.log(userId);
   const page = req.query.page || 1;
-  const limit = 5;
+  const limit = 10;
   
   const count = await Order.countDocuments({ "client.customerId": userId });
   const totalPages = Math.ceil(count / limit);
@@ -183,11 +183,30 @@ const getUserOrdersController = async (req, res) => {
   const userOrders = await Order.find({ "client.customerId": userId })
     .skip(skip)
     .limit(limit);
+  
+  const updatedOrdersArray = [];
+  for (const order of userOrders) {
+    const orderProducts = order.products;
+
+    const productInfoArray = [];
+    for (const product of orderProducts) {
+      const productId = product._id;
+      const productInfo = await Product.findById(productId);
+      productInfoArray.push(productInfo);
+    }
+
+    const updatedOrder = {
+      ...order._doc,
+      productInfo: productInfoArray,
+    };
+    updatedOrdersArray.push(updatedOrder);
+  }
 
   res.status(200).json({
-    orders: userOrders,
+    orders: updatedOrdersArray,
     totalPages,
     totalUserOrders: count,
+    // ordersProductsInfo: updatedOrdersArray,
   });
 };
 
