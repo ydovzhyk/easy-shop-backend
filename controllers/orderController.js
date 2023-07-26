@@ -32,7 +32,7 @@ console.log("newOrder", newOrder);
   );
   console.log("updatedUser", updatedUser);
   console.log("newOrder._id", newOrder._id.toString());
-  const orderNumberFromId =   newOrder._id.toString().match(/\d+/g).join("").slice(0, 7);
+  const orderNumberFromId =   newOrder._id.toString().match(/\d+/g).join("").slice(0, 8);
   console.log("orderNumberFromId", orderNumberFromId);
 
   const updatedOrder = await Order.findOneAndUpdate(
