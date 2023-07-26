@@ -7,6 +7,7 @@ const dialogueController = require("./controllers/dialogueController");
 // WS Server
 const http = require("http");
 const WebSocket = require("ws");
+const url = require("url");
 
 const authRouter = require("./routes/api/auth");
 const googleRouter = require("./routes/api/google");
@@ -69,7 +70,6 @@ app.use((err, req, res, next) => {
 });
 
 // WS Server
-
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
@@ -77,12 +77,10 @@ const wss = new WebSocket.Server({ server });
 const connectedClients = {};
 
 // Опрацювання підключення до WebSocket сервера
-wss.on("connection", (ws) => {
-  // Генерування унікального ID для підключення
-  const connectionId = generateConnectionId();
-
-  console.log("Нове підключення WebSocket. ID:", connectionId);
-
+wss.on("connection", (ws, req) => {
+  const query = url.parse(req.url, true).query;
+  // Генерування ID для підключення
+  const connectionId = query.user;
   // Збереження WebSocket-з'єднання в об'єкті connectedClients
   connectedClients[connectionId] = ws;
 
@@ -90,7 +88,6 @@ wss.on("connection", (ws) => {
   ws.on("message", async (message) => {
     // Отримання ID підключення відправника
     const senderId = findConnectionIdByWebSocket(ws);
-
     // Отримання WebSocket-з'єднання відправника
     const senderWebSocket = connectedClients[senderId];
 
@@ -118,45 +115,11 @@ server.listen(port, () => {
   console.log(`Сервер слухає на порті ${port}`);
 });
 
-// Функція для генерації унікального ID підключення
-function generateConnectionId() {
-  return Math.random().toString(36).substr(2, 9);
-}
-
 // Функція для пошуку ID підключення за WebSocket-з'єднанням
 function findConnectionIdByWebSocket(ws) {
   return Object.keys(connectedClients).find(
     (id) => connectedClients[id] === ws
   );
 }
-
-// const server = http.createServer(app);
-// const wss = new WebSocket.Server({ server });
-
-// // Опрацювання підключення до WebSocket сервера
-// wss.on("connection", (ws) => {
-//   console.log("Нове підключення WebSocket");
-
-//   // Опрацювання повідомлень, що надходять до WebSocket сервера
-//   ws.on("message", (message) => {
-//     console.log(JSON.parse(message.toString()));
-//     const response = dialogueController.checkUpdatesDialogueController(
-//       JSON.parse(message.toString())
-//     );
-
-//     // Розсилка повідомлень до всіх підключених клієнтів
-//     wss.clients.forEach((client) => {
-//       if (client !== ws && client.readyState === WebSocket.OPEN) {
-//         client.send(message);
-//       }
-//     });
-//   });
-// });
-
-// // Розпочати слухання на порті
-// const port = process.env.PORT_WS || 5000;
-// server.listen(port, () => {
-//   console.log(`Сервер слухає на порті ${port}`);
-// });
 
 module.exports = app;
