@@ -62,17 +62,12 @@ const updateOrderController = async (req, res) => {
     // const { orderId } = req.params;
   const {
     orderId,
-    // sellerName,
-    // sellerId,
-    // products,
-    // totalSum,
     customerId,
     customerFirstName,
     customerSurName,
     customerSecondName,
     delivery,
     customerTel,
-    // orderNumber,
   } = req.body;
     // console.log("req.body", req.body);
     const order = await Order.findById(orderId);
@@ -80,10 +75,6 @@ const updateOrderController = async (req, res) => {
     const updatedOrder = await Order.findOneAndUpdate(
       { _id: orderId },
       {
-        // sellerName: sellerName ? sellerName : order.sellerName,
-        // sellerId: sellerId ? sellerId : order.sellerId,
-        // products: products ? products : order.products,
-        // orderSum: totalSum ? totalSum : order.orderSum,
         client: {
           customerId: customerId ? customerId : order.customerId,
           customerSecondName: customerSecondName
@@ -98,7 +89,6 @@ const updateOrderController = async (req, res) => {
           customerTel: customerTel ? customerTel : order.customerTel,
         },
         delivery: delivery ? delivery : order.delivery,
-        // orderNumber: orderNumber ? orderNumber : order.orderNumber,
       },
       { new: true }
     );  
