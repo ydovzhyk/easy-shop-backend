@@ -6,7 +6,6 @@ const moment = require("moment");
 
 const addOrderController = async (req, res) => {
   const { _id: owner, email, firstName, secondName, surName, tel } = req.user;
-  console.log(owner, email, firstName, secondName, surName, tel);
   const { ownerName, ownerId, products, totalSum } = req.body;
   const currentDate = moment().format("DD.MM.YYYY HH:mm");  
   
@@ -24,16 +23,13 @@ const addOrderController = async (req, res) => {
     },
     orderDate: currentDate,
   });
-console.log("newOrder", newOrder);
   const updatedUser = await User.findOneAndUpdate(
     { _id: owner },
     { $push: { userOrders: newOrder._id } },
     { new: true }
   );
-  console.log("updatedUser", updatedUser);
-  console.log("newOrder._id", newOrder._id.toString());
+
   const orderNumberFromId =   newOrder._id.toString().match(/\d+/g).join("").slice(0, 8);
-  console.log("orderNumberFromId", orderNumberFromId);
 
   const updatedOrder = await Order.findOneAndUpdate(
     { _id: newOrder._id },
@@ -42,17 +38,14 @@ console.log("newOrder", newOrder);
     },
     { new: true }
   );
-  console.log("updatedOrder", updatedOrder);
-  console.log("newOrder.products", newOrder.products);
+
   const productInOrderArray = [];
   for (const newOrderProduct of newOrder.products) {
     const productId = newOrderProduct._id;
-    console.log("productId", productId);
     const product = await Product.findById(productId);
 
     productInOrderArray.push(product);
   }
-  console.log("productInOrderArray", productInOrderArray);
   const updatedNewOrder = {
     order: updatedOrder,
     orderProductInfo: productInOrderArray,
