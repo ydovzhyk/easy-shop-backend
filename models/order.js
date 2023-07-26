@@ -56,6 +56,10 @@ const orderSchema = new Schema(
       type: String,
       default: "",
     },
+    new: {
+      type: Boolean,
+      default: true,
+    },
   },
   { minimize: false }
 );
@@ -83,27 +87,12 @@ const addOrderSchema = Joi.object({
 
 const updateOrderSchema = Joi.object({
   orderId: Joi.string().required(),
-  sellerName: Joi.string().required(),
-  sellerId: Joi.string().required(),
-  products: Joi.array()
-    .items(
-      Joi.object({
-        price: Joi.number().required(),
-        quantity: Joi.number().required(),
-        size: Joi.array().required(),
-        sum: Joi.number().required(),
-        _id: Joi.string().required(),
-      })
-    )
-    .required(),
-  totalSum: Joi.number().required(),
   customerId: Joi.string().required(),
   customerFirstName: Joi.string().required(),
   customerSurName: Joi.string().required(),
   customerSecondName: Joi.string().required(),
   delivery: Joi.string().required(),
   customerTel: Joi.string().required(),
-  orderNumber: Joi.string().required(),
 });
 
 

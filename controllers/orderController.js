@@ -1,11 +1,11 @@
 const { User } = require("../models/user");
 const { Order } = require("../models/order");
-
+const { Product } = require("../models/product");
 const { RequestError } = require("../helpers");
 const moment = require("moment");
 
 const addOrderController = async (req, res) => {
-  const { _id: owner } = req.user;
+  const { _id: owner, email, firstName, secondName, surName, tel } = req.user;
   const { ownerName, ownerId, products, totalSum } = req.body;
   const currentDate = moment().format("DD.MM.YYYY HH:mm");  
   
@@ -16,20 +16,45 @@ const addOrderController = async (req, res) => {
     orderSum: totalSum,
     client: {
       customerId: owner,
+      customerSecondName: secondName ? secondName : "",
+      customerFirstName: firstName ? firstName : "",
+      customerSurName: surName ? surName : "",
+      customerTel: tel ? tel : "",
     },
     orderDate: currentDate,
   });
-
   const updatedUser = await User.findOneAndUpdate(
     { _id: owner },
     { $push: { userOrders: newOrder._id } },
     { new: true }
   );
 
+  const orderNumberFromId =   newOrder._id.toString().match(/\d+/g).join("").slice(0, 8);
+
+  const updatedOrder = await Order.findOneAndUpdate(
+    { _id: newOrder._id },
+    {
+      orderNumber: orderNumberFromId ? orderNumberFromId : "",
+    },
+    { new: true }
+  );
+
+  const productInOrderArray = [];
+  for (const newOrderProduct of newOrder.products) {
+    const productId = newOrderProduct._id;
+    const product = await Product.findById(productId);
+
+    productInOrderArray.push(product);
+  }
+  const updatedNewOrder = {
+    order: updatedOrder,
+    orderProductInfo: productInOrderArray,
+  };
+
   res.status(200).json({
     message: "Order added successfully",
     newOrderId: newOrder._id,
-    newOrder,
+    newOrder: updatedNewOrder,
   });
 };
 
@@ -37,17 +62,12 @@ const updateOrderController = async (req, res) => {
     // const { orderId } = req.params;
   const {
     orderId,
-    sellerName,
-    sellerId,
-    products,
-    totalSum,
     customerId,
     customerFirstName,
     customerSurName,
     customerSecondName,
     delivery,
     customerTel,
-    orderNumber,
   } = req.body;
     // console.log("req.body", req.body);
     const order = await Order.findById(orderId);
@@ -55,10 +75,6 @@ const updateOrderController = async (req, res) => {
     const updatedOrder = await Order.findOneAndUpdate(
       { _id: orderId },
       {
-        sellerName: sellerName ? sellerName : order.sellerName,
-        sellerId: sellerId ? sellerId : order.sellerId,
-        products: products ? products : order.products,
-        orderSum: totalSum ? totalSum : order.orderSum,
         client: {
           customerId: customerId ? customerId : order.customerId,
           customerSecondName: customerSecondName
@@ -73,7 +89,6 @@ const updateOrderController = async (req, res) => {
           customerTel: customerTel ? customerTel : order.customerTel,
         },
         delivery: delivery ? delivery : order.delivery,
-        orderNumber: orderNumber ? orderNumber : order.orderNumber,
       },
       { new: true }
     );  
@@ -92,7 +107,18 @@ const getOrderByIdController = async (req, res, next) => {
   if (!orderById) {
     return next(RequestError(404, "Not found"));
   }
-  return res.status(200).json(orderById);
+  const productInOrderArray = [];
+  for (const orderProduct of orderById.products) {
+    const productId = orderProduct._id;
+    const product = await Product.findById(productId);
+
+    productInOrderArray.push(product);
+  }
+  const updatedOrderById = {
+    order: orderById,
+    orderProductInfo: productInOrderArray,
+  };
+  return res.status(200).json(updatedOrderById);
 };
 
 const getOrdersController = async (req, res) => {
@@ -131,7 +157,7 @@ const getUserOrdersController = async (req, res) => {
   const { _id: userId } = req.user;
   // console.log(userId);
   const page = req.query.page || 1;
-  const limit = 5;
+  const limit = 10;
   
   const count = await Order.countDocuments({ "client.customerId": userId });
   const totalPages = Math.ceil(count / limit);
@@ -140,11 +166,30 @@ const getUserOrdersController = async (req, res) => {
   const userOrders = await Order.find({ "client.customerId": userId })
     .skip(skip)
     .limit(limit);
+  
+  const updatedOrdersArray = [];
+  for (const order of userOrders) {
+    const orderProducts = order.products;
+
+    const productInfoArray = [];
+    for (const product of orderProducts) {
+      const productId = product._id;
+      const productInfo = await Product.findById(productId);
+      productInfoArray.push(productInfo);
+    }
+
+    const updatedOrder = {
+      ...order._doc,
+      productInfo: productInfoArray,
+    };
+    updatedOrdersArray.push(updatedOrder);
+  }
 
   res.status(200).json({
-    orders: userOrders,
+    orders: updatedOrdersArray,
     totalPages,
     totalUserOrders: count,
+    // ordersProductsInfo: updatedOrdersArray,
   });
 };
 
