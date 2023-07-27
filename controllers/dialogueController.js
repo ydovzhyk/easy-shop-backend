@@ -327,10 +327,9 @@ const checkUpdatesDialogueController = async (data) => {
   console.log("Це дата в контроллері", userId, newMessage);
   const currentUser = await User.findById(userId);
   if (currentUser.newMessage !== newMessage) {
-    console.log("Need to update");
-    return { message: "Need to update" };
+    return { message: true };
   } else {
-    return { message: "No updates" };
+    return { message: false };
   }
 };
 
