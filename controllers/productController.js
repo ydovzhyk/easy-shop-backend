@@ -172,10 +172,12 @@ const getUserProductsController = async (req, res) => {
 
 // get products by Query
 const getProductsQueryController = async (req, res) => {
+  const page = req.query.page || 1;
   const searchQuery = req.query.searchQuery;
   const section = req.query.section;
   const category = req.query.category;
   const filterData = JSON.parse(req.query.filterData);
+  const limit = 6;
 
   const searchKeywords = searchQuery.toLowerCase().split(" ");
 
@@ -290,10 +292,19 @@ const getProductsQueryController = async (req, res) => {
     }
   }
 
+  const count = uniqueProducts.length;
+  const totalPages = Math.ceil(count / limit);
+  const skip = (page - 1) * limit;
+
   if (uniqueProducts.length === 0) {
-    res.status(200).json([]);
+    res.status(200).json({ products: [], totalPages: 1, totalProducts: [] });
   } else {
-    res.status(200).json(uniqueProducts);
+    const paginatedProducts = uniqueProducts.slice(skip, skip + limit);
+    res.status(200).json({
+      products: paginatedProducts,
+      totalPages: totalPages,
+      totalProducts: uniqueProducts,
+    });
   }
 };
 
@@ -307,7 +318,10 @@ const getVipProductsController = async (req, res) => {
   const totalPages = Math.ceil(count / limit); // Загальна кількість сторінок
   const skip = (page - 1) * limit; // Кількість продуктів, які потрібно пропустити
 
-  const products = await Product.find({ vip: "Так" }).skip(skip).limit(limit);
+  const products = await Product.find({ vip: "Так" })
+    .sort({ date: -1 })
+    .skip(skip)
+    .limit(limit);
 
   res.status(200).json({
     products,
