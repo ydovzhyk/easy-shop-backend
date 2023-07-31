@@ -125,14 +125,21 @@ app.use((err, req, res, next) => {
 //   );
 // }
 
-const PORT = process.env.PORT_WS || 5000;
+let PORT_WS = null;
 
-console.log("Це ПОРТ", process.env.PORT);
+if (process.env.PORT === "4000") {
+  PORT_WS = 5000;
+} else {
+  PORT_WS = process.env.PORT;
+}
+
+// const PORT = process.env.PORT_WS || 5000;
+
 const INDEX = "/index.html";
 
 const server = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+  .listen(PORT_WS, () => console.log(`Listening on ${PORT_WS}`));
 
 const wss = new Server({ server });
 
