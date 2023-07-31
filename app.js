@@ -125,8 +125,7 @@ app.use((err, req, res, next) => {
 //   );
 // }
 
-let PORT = process.env.PORT === "4000" ? 5000 : process.env.PORT;
-// const PORT = 5000;
+const PORT = process.env.PORT_WS || 5000;
 
 console.log("Це ПОРТ", process.env.PORT);
 const INDEX = "/index.html";
