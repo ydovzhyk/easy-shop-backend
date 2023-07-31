@@ -142,23 +142,23 @@ wss.on("connection", (ws, req) => {
   connectedClients[connectionId] = ws;
   console.log(`Client ${connectionId} connected`);
 
-  ws.on("message", async (message) => {
-    // Код для обробки повідомлення та підготовки відповіді
-    const response = await dialogueController.checkUpdatesDialogueController(
-      JSON.parse(message.toString())
-    );
+  // ws.on("message", async (message) => {
+  //   // Код для обробки повідомлення та підготовки відповіді
+  //   const response = await dialogueController.checkUpdatesDialogueController(
+  //     JSON.parse(message.toString())
+  //   );
 
-    // Отримання ID підключення відправника
-    const senderId = findConnectionIdByWebSocket(ws);
-    // Отримання WebSocket-з'єднання відправника
-    const senderWebSocket = connectedClients[senderId];
+  //   // Отримання ID підключення відправника
+  //   const senderId = findConnectionIdByWebSocket(ws);
+  //   // Отримання WebSocket-з'єднання відправника
+  //   const senderWebSocket = connectedClients[senderId];
 
-    // Відправка відповіді конкретному клієнту
-    if (senderWebSocket && senderWebSocket.readyState === 1) {
-      console.log("Зайшли відправити відповідь");
-      senderWebSocket.send(JSON.stringify(response.message));
-    }
-  });
+  //   // Відправка відповіді конкретному клієнту
+  //   if (senderWebSocket && senderWebSocket.readyState === 1) {
+  //     console.log("Зайшли відправити відповідь");
+  //     senderWebSocket.send(JSON.stringify(response.message));
+  //   }
+  // });
 
   ws.on("close", () => console.log("Client disconnected"));
 });
