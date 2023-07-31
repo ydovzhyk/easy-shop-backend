@@ -133,7 +133,7 @@ app.use((err, req, res, next) => {
 //   PORT_WS = process.env.PORT;
 // }
 
-const PORT = process.env.PORT_WS || 5000;
+const PORT = process.env.PORT_WS || process.env.PORT;
 
 const INDEX = "/index.html";
 
