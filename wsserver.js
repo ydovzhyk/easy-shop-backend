@@ -12,7 +12,6 @@ function findConnectionIdByWebSocket(ws) {
 
 function startWebSocketServer(httpServer) {
   const wss = new Server({ server: httpServer });
-  console.log(wss);
 
   wss.on("connection", (ws, req) => {
     const query = url.parse(req.url, true).query;
