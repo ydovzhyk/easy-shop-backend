@@ -5,7 +5,7 @@ const { RequestError } = require("../helpers");
 const moment = require("moment");
 
 const addOrderController = async (req, res) => {
-  const { _id: owner, email, firstName, secondName, surName, tel } = req.user;
+  const { _id: owner, firstName, secondName, surName, tel } = req.user;
   const { ownerName, ownerId, products, totalSum } = req.body;
   const currentDate = moment().format("DD.MM.YYYY HH:mm");  
   
@@ -157,18 +157,69 @@ const getUserOrdersController = async (req, res) => {
   const { _id: userId } = req.user;
   // console.log(userId);
   const page = req.query.page || 1;
-  const limit = 10;
-  
-  const count = await Order.countDocuments({ "client.customerId": userId });
-  const totalPages = Math.ceil(count / limit);
+  const limit = 8;
   const skip = (page - 1) * limit;
 
-  const userOrders = await Order.find({ "client.customerId": userId })
-    .skip(skip)
-    .limit(limit);
+  const selector = req.query.selectorName || "all";
   
+  let selectedOrders;
+  let count;
+  
+  if (selector === "all") {
+    count = await Order.countDocuments({ "client.customerId": userId });
+    selectedOrders = await Order.find({ "client.customerId": userId })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+  if (selector === "new") {
+    count = await Order.countDocuments({
+      "client.customerId": userId,
+      confirmed: false,
+      new: true,
+    });
+    selectedOrders = await Order.find({
+      "client.customerId": userId,
+      confirmed: false,
+      new: true,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+  if (selector === "confirmed") {
+    count = await Order.countDocuments({
+      "client.customerId": userId,
+      confirmed: true,
+      new: false,
+    });
+    selectedOrders = await Order.find({
+      "client.customerId": userId,
+      confirmed: true,
+      new: false,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+  if (selector === "canceled") {
+    count = await Order.countDocuments({
+      "client.customerId": userId,
+      confirmed: false,
+      new: false,
+    });
+    selectedOrders = await Order.find({
+      "client.customerId": userId,
+      confirmed: false,
+      new: false,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
   const updatedOrdersArray = [];
-  for (const order of userOrders) {
+  for (const order of selectedOrders) {
     const orderProducts = order.products;
 
     const productInfoArray = [];
@@ -185,11 +236,12 @@ const getUserOrdersController = async (req, res) => {
     updatedOrdersArray.push(updatedOrder);
   }
 
+  const totalPages = Math.ceil(count / limit);
+
   res.status(200).json({
     orders: updatedOrdersArray,
     totalPages,
     totalUserOrders: count,
-    // ordersProductsInfo: updatedOrdersArray,
   });
 };
 
