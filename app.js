@@ -125,51 +125,58 @@ app.use((err, req, res, next) => {
 //   );
 // }
 
-const PORT = process.env.PORT_WS || 5000;
+// const PORT = process.env.PORT_WS || 5000;
 
-const INDEX = "/index.html";
+// const INDEX = "/index.html";
 
-const WSserver = express()
-  .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+// const WSserver = express()
+//   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
+//   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
-const wss = new Server({ server: WSserver });
+// const wss = new Server({ server: WSserver });
 
-const connectedClients = {};
+// const connectedClients = {};
 
-wss.on("connection", (ws, req) => {
-  const query = url.parse(req.url, true).query;
-  const connectionId = query.user;
-  connectedClients[connectionId] = ws;
-  console.log(`Client ${connectionId} connected`);
+// wss.on("headers", (headers, req) => {
+//   headers.push("Access-Control-Allow-Origin: *");
+//   headers.push(
+//     "Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept"
+//   );
+// });
 
-  ws.on("message", async (message) => {
-    // Код для обробки повідомлення та підготовки відповіді
-    const response = await dialogueController.checkUpdatesDialogueController(
-      JSON.parse(message.toString())
-    );
+// wss.on("connection", (ws, req) => {
+//   const query = url.parse(req.url, true).query;
+//   const connectionId = query.user;
+//   connectedClients[connectionId] = ws;
+//   console.log(`Client ${connectionId} connected`);
 
-    // Отримання ID підключення відправника
-    const senderId = findConnectionIdByWebSocket(ws);
-    // Отримання WebSocket-з'єднання відправника
-    const senderWebSocket = connectedClients[senderId];
+//   ws.on("message", async (message) => {
+//     // Код для обробки повідомлення та підготовки відповіді
+//     const response = await dialogueController.checkUpdatesDialogueController(
+//       JSON.parse(message.toString())
+//     );
 
-    // Відправка відповіді конкретному клієнту
-    if (senderWebSocket && senderWebSocket.readyState === 1) {
-      console.log("Зайшли відправити відповідь");
-      senderWebSocket.send(JSON.stringify(response.message));
-    }
-  });
+//     // Отримання ID підключення відправника
+//     const senderId = findConnectionIdByWebSocket(ws);
+//     // Отримання WebSocket-з'єднання відправника
+//     const senderWebSocket = connectedClients[senderId];
 
-  ws.on("close", () => console.log("Client disconnected"));
-});
+//     // Відправка відповіді конкретному клієнту
+//     if (senderWebSocket && senderWebSocket.readyState === 1) {
+//       console.log("Зайшли відправити відповідь");
+//       senderWebSocket.send(JSON.stringify(response.message));
+//     }
+//   });
 
-// Функція для пошуку ID підключення за WebSocket-з'єднанням
-function findConnectionIdByWebSocket(ws) {
-  return Object.keys(connectedClients).find(
-    (id) => connectedClients[id] === ws
-  );
-}
+//   ws.on("close", () => console.log("Client disconnected"));
+// });
+
+// // Функція для пошуку ID підключення за WebSocket-з'єднанням
+// function findConnectionIdByWebSocket(ws) {
+//   return Object.keys(connectedClients).find(
+//     (id) => connectedClients[id] === ws
+//   );
+// }
 
 // setInterval(() => {
 //   wss.clients.forEach((client) => {
