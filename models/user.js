@@ -85,6 +85,7 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    userSales: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
   },
 
   { minimize: false }

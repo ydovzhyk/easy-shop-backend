@@ -44,4 +44,7 @@ router.post(
   ctrlWrapper(ctrl.getUserOrdersController)
 );
 
+// get user sales
+router.post("/user-sales", authorize, ctrlWrapper(ctrl.getUserSalesController));
+
 module.exports = router;
