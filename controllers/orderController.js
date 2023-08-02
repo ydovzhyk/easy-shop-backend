@@ -5,7 +5,7 @@ const { RequestError } = require("../helpers");
 const moment = require("moment");
 
 const addOrderController = async (req, res) => {
-  const { _id: owner, firstName, secondName, surName, tel } = req.user;
+  const { _id: clientId, firstName, secondName, surName, tel } = req.user;
   const { ownerName, ownerId, products, totalSum } = req.body;
   const currentDate = moment().format("DD.MM.YYYY HH:mm");  
   
@@ -15,7 +15,7 @@ const addOrderController = async (req, res) => {
     products: products,
     orderSum: totalSum,
     client: {
-      customerId: owner,
+      customerId: clientId,
       customerSecondName: secondName ? secondName : "",
       customerFirstName: firstName ? firstName : "",
       customerSurName: surName ? surName : "",
@@ -24,7 +24,7 @@ const addOrderController = async (req, res) => {
     orderDate: currentDate,
   });
   const updatedUser = await User.findOneAndUpdate(
-    { _id: owner },
+    { _id: clientId },
     { $push: { userOrders: newOrder._id } },
     { new: true }
   );
@@ -93,6 +93,12 @@ const updateOrderController = async (req, res) => {
       { new: true }
     );  
 // console.log("updatedOrder", updatedOrder);
+// console.log("order.sellerId ", order.sellerId);
+  const updatedSeller = await User.findOneAndUpdate(
+    { _id: order.sellerId },
+    { $push: { userSales: orderId } },
+    { new: true }
+  );
   res.status(200).json({
     message: "Order formed successfully",
     updatedOrder,
@@ -245,6 +251,46 @@ const getUserOrdersController = async (req, res) => {
   });
 };
 
+// get User orders
+const getUserSalesController = async (req, res) => {
+  const { _id: userId } = req.user;
+  // console.log(userId);
+  const page = req.query.page || 1;
+  const limit = 8;
+  const skip = (page - 1) * limit;
+  count = await Order.countDocuments({ sellerId: userId });
+  selectedSales = await Order.find({ sellerId: userId })
+    .sort({ orderDate: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const updatedOrdersArray = [];
+  for (const order of selectedSales) {
+    const orderProducts = order.products;
+
+    const productInfoArray = [];
+    for (const product of orderProducts) {
+      const productId = product._id;
+      const productInfo = await Product.findById(productId);
+      productInfoArray.push(productInfo);
+    }
+
+    const updatedOrder = {
+      ...order._doc,
+      productInfo: productInfoArray,
+    };
+    updatedOrdersArray.push(updatedOrder);
+  }
+
+  const totalPages = Math.ceil(count / limit);
+
+  res.status(200).json({
+    sales: updatedOrdersArray,
+    totalPages,
+    totalUserSales: count,
+  });
+};
+
 module.exports = {
   addOrderController,
   updateOrderController,
@@ -252,4 +298,5 @@ module.exports = {
   getOrdersController,
   deleteOrderController,
   getUserOrdersController,
+  getUserSalesController,
 };
