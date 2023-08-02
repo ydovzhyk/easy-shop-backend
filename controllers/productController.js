@@ -296,14 +296,22 @@ const getProductsQueryController = async (req, res) => {
   const totalPages = Math.ceil(count / limit);
   const skip = (page - 1) * limit;
 
-  if (uniqueProducts.length === 0) {
+  const compareDates = (a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateB - dateA;
+  };
+
+  const sortedUniqueProducts = uniqueProducts.sort(compareDates);
+
+  if (sortedUniqueProducts.length === 0) {
     res.status(200).json({ products: [], totalPages: 1, totalProducts: [] });
   } else {
-    const paginatedProducts = uniqueProducts.slice(skip, skip + limit);
+    const paginatedProducts = sortedUniqueProducts.slice(skip, skip + limit);
     res.status(200).json({
       products: paginatedProducts,
       totalPages: totalPages,
-      totalProducts: uniqueProducts,
+      totalProducts: sortedUniqueProducts,
     });
   }
 };
