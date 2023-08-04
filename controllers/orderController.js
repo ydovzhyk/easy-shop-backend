@@ -358,6 +358,27 @@ const getUserSalesController = async (req, res) => {
   });
 };
 
+const updateOrderStatusController = async (req, res) => {
+  
+  const { orderId, confirmed, statusNew } = req.body;
+  // console.log("req.body", req.body);
+
+  const updatedOrder = await Order.findOneAndUpdate(
+    { _id: orderId },
+    {
+      confirmed: confirmed,
+      statusNew: statusNew,
+    },
+    { new: true }
+  );
+
+  res.status(200).json({
+    message: "Order changed successfully",
+    updatedOrder,
+    code: 200,
+  });
+};
+
 module.exports = {
   addOrderController,
   updateOrderController,
@@ -366,4 +387,5 @@ module.exports = {
   deleteOrderController,
   getUserOrdersController,
   getUserSalesController,
+  updateOrderStatusController,
 };
