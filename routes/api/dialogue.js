@@ -42,4 +42,11 @@ router.post(
   ctrlWrapper(ctrl.deleteDialogueNewMessageController)
 );
 
+router.post(
+  "/order",
+  authorize,
+  //   validateBody(schemas.verificationSchema),
+  ctrlWrapper(ctrl.orderDialogueController)
+);
+
 module.exports = router;

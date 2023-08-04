@@ -218,9 +218,11 @@ const getAllDialoguesController = async (req, res) => {
     };
     updatedDialoguesArray.push(updatedDialogue);
   }
-
+  const sortedDialogues = updatedDialoguesArray.sort(
+    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+  );
   res.status(201).send({
-    dialoguesArray: updatedDialoguesArray,
+    dialoguesArray: sortedDialogues,
   });
 };
 
@@ -333,6 +335,211 @@ const checkUpdatesDialogueController = async (data) => {
   }
 };
 
+const orderDialogueController = async (req, res) => {
+  const { productId, productOwner } = req.body;
+  const user = req.user;
+  const product = await Product.findById(productId);
+  const owner = await User.findById(productOwner);
+  const infoId = "64cccb7e5b8c2eb706fe655d";
+  const info = await User.findOne({ _id: infoId });
+
+  const textOwner = `Добрий день, ваш товар: ${product.nameProduct} замовлений користувачем ${user.userName}. Перейдіть у ваш профіль щоб підтвердити чи відхилити угоду.`;
+  const textUser = `Добрий день, ви замовили товар: ${product.nameProduct} у користувача ${owner.username}. Перейдіть у ваш профіль щоб переглянути статус замовлення.`;
+
+  const currentDate = moment().format("DD.MM.YYYY HH:mm");
+  // шукаємо діалог info з owner товару
+  const isDialogueOwner = await Dialogue.findOne({
+    $and: [
+      {
+        statusDialogue: {
+          $elemMatch: {
+            userOne: info._id,
+            status: true,
+          },
+        },
+      },
+      {
+        statusDialogue: {
+          $elemMatch: {
+            userTwo: owner._id,
+            status: true,
+          },
+        },
+      },
+    ],
+  });
+
+  // шукаємо діалог з info і user
+  const isDialogueUser = await Dialogue.findOne({
+    $and: [
+      {
+        statusDialogue: {
+          $elemMatch: {
+            userOne: info._id,
+            status: true,
+          },
+        },
+      },
+      {
+        statusDialogue: {
+          $elemMatch: {
+            userTwo: user._id,
+            status: true,
+          },
+        },
+      },
+    ],
+  });
+
+  if (!isDialogueOwner) {
+    const newDialogue = await Dialogue.create({
+      messageArray: {
+        text: textOwner,
+        date: currentDate,
+        textOwner: info._id,
+      },
+      userId: info._id,
+      userAvatar: info.userAvatar,
+      productId: productId,
+      productOwner: owner._id,
+      productOwnerAvatar: owner.userAvatar,
+      statusDialogue: [
+        { userOne: info._id, status: true },
+        { userTwo: owner._id, status: true },
+      ],
+      newMessages: [
+        {
+          userReceiver: owner._id,
+          message: textOwner,
+          date: currentDate,
+        },
+      ],
+    });
+
+    await User.findOneAndUpdate(
+      { _id: info._id },
+      { $push: { userDialogue: newDialogue._id } },
+      { new: true }
+    );
+
+    await User.findOneAndUpdate(
+      { _id: owner._id },
+      {
+        $push: { userDialogue: newDialogue._id },
+        $inc: { newMessage: 1 },
+      }
+    );
+
+    res.status(201).send({ message: "Message successfully sending" });
+  } else {
+    const updatedMessageArray = [
+      ...isDialogueOwner.messageArray,
+      {
+        text: textOwner,
+        date: currentDate,
+        textOwner: info._id,
+      },
+    ];
+
+    const updatedNewMessages = [
+      ...isDialogueOwner.newMessages,
+      {
+        userReceiver: owner._id,
+        message: textOwner,
+        date: currentDate,
+      },
+    ];
+
+    await Dialogue.findOneAndUpdate(
+      { _id: isDialogueOwner._id },
+      {
+        messageArray: updatedMessageArray,
+        newMessages: updatedNewMessages,
+        productId: productId,
+      }
+    );
+
+    await User.findOneAndUpdate(
+      { _id: owner._id },
+      { $inc: { newMessage: 1 } }
+    );
+
+    res.status(201).send({ message: "Message successfully sending" });
+  }
+
+  if (!isDialogueUser) {
+    const newDialogue = await Dialogue.create({
+      messageArray: {
+        text: textUser,
+        date: currentDate,
+        textOwner: info._id,
+      },
+      userId: user._id,
+      userAvatar: user.userAvatar,
+      productId: productId,
+      productOwner: info._id,
+      productOwnerAvatar: info.userAvatar,
+      statusDialogue: [
+        { userOne: info._id, status: true },
+        { userTwo: user._id, status: true },
+      ],
+      newMessages: [
+        {
+          userReceiver: user._id,
+          message: textUser,
+          date: currentDate,
+        },
+      ],
+    });
+
+    await User.findOneAndUpdate(
+      { _id: info._id },
+      { $push: { userDialogue: newDialogue._id } }
+    );
+
+    await User.findOneAndUpdate(
+      { _id: user._id },
+      {
+        $push: { userDialogue: newDialogue._id },
+        $inc: { newMessage: 1 },
+      }
+    );
+
+    res.status(201).send({ message: "Message successfully sending" });
+  } else {
+    const updatedMessageArray = [
+      ...isDialogueUser.messageArray,
+      {
+        text: textUser,
+        date: currentDate,
+        textOwner: info._id,
+      },
+    ];
+
+    const updatedNewMessages = [
+      ...isDialogueOwner.newMessages,
+      {
+        userReceiver: userId,
+        message: textUser,
+        date: currentDate,
+      },
+    ];
+
+    await Dialogue.findOneAndUpdate(
+      { _id: isDialogueUser._id },
+      {
+        messageArray: updatedMessageArray,
+        newMessages: updatedNewMessages,
+        productId: productId,
+      }
+    );
+
+    await User.findOneAndUpdate({ _id: user._id }, { $inc: { newMessage: 1 } });
+
+    res.status(201).send({ message: "Message successfully sending" });
+  }
+};
+
 module.exports = {
   createDialogueController,
   getDialogueController,
@@ -340,5 +547,6 @@ module.exports = {
   deleteDialogueController,
   deleteDialogueNewMessageController,
   checkUpdatesDialogueController,
+  orderDialogueController,
   // checkUpdates,
 };
