@@ -16,6 +16,8 @@ const userSubscriptionsController = async (req, res) => {
   // const subscribedUsers = await User.find({ _id: { $in: subscriptions } });
   const subscribedUsers = await User.find();
 
+  console.log(subscribedUsers);
+
   const count = subscribedUsers.length;
   const totalPages = Math.ceil(count / limit);
   const skip = (page - 1) * limit;

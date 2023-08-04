@@ -391,6 +391,8 @@ const orderDialogueController = async (req, res) => {
     ],
   });
 
+  console.log(isDialogueUser);
+
   if (!isDialogueOwner) {
     const newDialogue = await Dialogue.create({
       messageArray: {
@@ -474,11 +476,11 @@ const orderDialogueController = async (req, res) => {
         date: currentDate,
         textOwner: info._id,
       },
-      userId: user._id,
-      userAvatar: user.userAvatar,
+      userId: info._id,
+      userAvatar: info.userAvatar,
       productId: productId,
-      productOwner: info._id,
-      productOwnerAvatar: info.userAvatar,
+      productOwner: user._id,
+      productOwnerAvatar: user.userAvatar,
       statusDialogue: [
         { userOne: info._id, status: true },
         { userTwo: user._id, status: true },
@@ -519,7 +521,7 @@ const orderDialogueController = async (req, res) => {
     const updatedNewMessages = [
       ...isDialogueOwner.newMessages,
       {
-        userReceiver: userId,
+        userReceiver: user._id,
         message: textUser,
         date: currentDate,
       },
