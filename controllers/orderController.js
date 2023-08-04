@@ -134,21 +134,32 @@ const getOrdersController = async (req, res) => {
 
 const deleteOrderController = async (req, res) => {
   const { orderId } = req.params;
-  // const orderById = await Order.findById(orderId);
+  const orderById = await Order.findById(orderId);
   // const ownerId = orderById.client.customerId;
+  const sellerId = orderById.sellerId;
   const { _id: owner } = req.user;
   try {
     await Order.deleteOne({ _id: orderId });
 
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedClient = await User.findOneAndUpdate(
       { _id: owner },
       // { _id: ownerId },
       { $pull: { userOrders: orderId } },
       { new: true }
     );
 
-    if (!updatedUser) {
-      throw new Error("User not found");
+    if (!updatedClient) {
+      throw new Error("Client not found");
+    }
+
+    const updatedSeller = await User.findOneAndUpdate(
+      { _id: sellerId },
+      { $pull: { userOrders: orderId } },
+      { new: true }
+    );
+
+    if (!updatedSeller) {
+      throw new Error("Seller not found");
     }
 
     res.status(200).json({ message: "Order deleted" });
