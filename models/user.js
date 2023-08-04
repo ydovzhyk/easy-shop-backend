@@ -81,6 +81,7 @@ const userSchema = new Schema(
     userLikes: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     userDialogue: [{ type: Schema.Types.ObjectId, ref: "Dialogue" }],
     userOrders: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
+    userSubscriptions: [{ type: Schema.Types.ObjectId, ref: "User" }],
     newMessage: {
       type: Number,
       default: 0,
