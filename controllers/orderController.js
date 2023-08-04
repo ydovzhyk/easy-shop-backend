@@ -154,7 +154,7 @@ const deleteOrderController = async (req, res) => {
 
     const updatedSeller = await User.findOneAndUpdate(
       { _id: sellerId },
-      { $pull: { userOrders: orderId } },
+      { $pull: { userSales: orderId } },
       { new: true }
     );
 
