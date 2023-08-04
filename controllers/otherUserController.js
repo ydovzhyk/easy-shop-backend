@@ -13,10 +13,10 @@ const getOtherUserController = async (req, res) => {
 
 const userSubscriptionsController = async (req, res) => {
   const subscriptions = req.user.userSubscriptions;
+  const page = req.query.page || 1;
+  const limit = 5;
   // const subscribedUsers = await User.find({ _id: { $in: subscriptions } });
   const subscribedUsers = await User.find();
-
-  console.log(subscribedUsers);
 
   const count = subscribedUsers.length;
   const totalPages = Math.ceil(count / limit);
@@ -28,6 +28,7 @@ const userSubscriptionsController = async (req, res) => {
       .json({ userSubscriptions: [], totalPagesUserSubscription: 0 });
   } else {
     const paginatedSubscribedUsers = subscribedUsers.slice(skip, skip + limit);
+
     res.status(200).json({
       userSubscriptions: paginatedSubscribedUsers,
       totalPagesUserSubscription: totalPages,
