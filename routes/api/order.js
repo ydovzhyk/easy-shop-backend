@@ -46,5 +46,11 @@ router.post(
 
 // get user sales
 router.post("/user-sales", authorize, ctrlWrapper(ctrl.getUserSalesController));
+// updateOrder status
+router.post(
+  "/confirmation",
+  authorize,
+  ctrlWrapper(ctrl.updateOrderStatusController)
+);
 
 module.exports = router;

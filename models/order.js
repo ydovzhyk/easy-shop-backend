@@ -56,7 +56,7 @@ const orderSchema = new Schema(
       type: String,
       default: "",
     },
-    new: {
+    statusNew: {
       type: Boolean,
       default: true,
     },

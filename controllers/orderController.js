@@ -134,21 +134,32 @@ const getOrdersController = async (req, res) => {
 
 const deleteOrderController = async (req, res) => {
   const { orderId } = req.params;
-  // const orderById = await Order.findById(orderId);
+  const orderById = await Order.findById(orderId);
   // const ownerId = orderById.client.customerId;
+  const sellerId = orderById.sellerId;
   const { _id: owner } = req.user;
   try {
     await Order.deleteOne({ _id: orderId });
 
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedClient = await User.findOneAndUpdate(
       { _id: owner },
       // { _id: ownerId },
       { $pull: { userOrders: orderId } },
       { new: true }
     );
 
-    if (!updatedUser) {
-      throw new Error("User not found");
+    if (!updatedClient) {
+      throw new Error("Client not found");
+    }
+
+    const updatedSeller = await User.findOneAndUpdate(
+      { _id: sellerId },
+      { $pull: { userSales: orderId } },
+      { new: true }
+    );
+
+    if (!updatedSeller) {
+      throw new Error("Seller not found");
     }
 
     res.status(200).json({ message: "Order deleted" });
@@ -182,12 +193,12 @@ const getUserOrdersController = async (req, res) => {
     count = await Order.countDocuments({
       "client.customerId": userId,
       confirmed: false,
-      new: true,
+      statusNew: true,
     });
     selectedOrders = await Order.find({
       "client.customerId": userId,
       confirmed: false,
-      new: true,
+      statusNew: true,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -197,12 +208,12 @@ const getUserOrdersController = async (req, res) => {
     count = await Order.countDocuments({
       "client.customerId": userId,
       confirmed: true,
-      new: false,
+      statusNew: false,
     });
     selectedOrders = await Order.find({
       "client.customerId": userId,
       confirmed: true,
-      new: false,
+      statusNew: false,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -212,12 +223,12 @@ const getUserOrdersController = async (req, res) => {
     count = await Order.countDocuments({
       "client.customerId": userId,
       confirmed: false,
-      new: false,
+      statusNew: false,
     });
     selectedOrders = await Order.find({
       "client.customerId": userId,
       confirmed: false,
-      new: false,
+      statusNew: false,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -258,11 +269,67 @@ const getUserSalesController = async (req, res) => {
   const page = req.query.page || 1;
   const limit = 8;
   const skip = (page - 1) * limit;
-  count = await Order.countDocuments({ sellerId: userId });
-  selectedSales = await Order.find({ sellerId: userId })
-    .sort({ orderDate: -1 })
-    .skip(skip)
-    .limit(limit);
+
+  const selector = req.query.selectorName || "all";
+
+  let selectedSales;
+  let count;
+
+  if (selector === "all") {
+    count = await Order.countDocuments({ sellerId: userId });
+    selectedSales = await Order.find({ sellerId: userId })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
+  if (selector === "new") { 
+    count = await Order.countDocuments({
+      sellerId: userId,
+      confirmed: false,
+      statusNew: true,
+    });
+    selectedSales = await Order.find({
+      sellerId: userId,
+      confirmed: false,
+      statusNew: true,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+  
+  if (selector === "confirmed") {
+    count = await Order.countDocuments({
+      sellerId: userId,
+      confirmed: true,
+      statusNew: false,
+    });
+    selectedSales = await Order.find({
+      sellerId: userId,
+      confirmed: true,
+      statusNew: false,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
+  if (selector === "canceled") {
+    count = await Order.countDocuments({
+      sellerId: userId,
+      confirmed: false,
+      statusNew: false,
+    });
+    selectedSales = await Order.find({
+      sellerId: userId,
+      confirmed: false,
+      statusNew: false,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
 
   const updatedOrdersArray = [];
   for (const order of selectedSales) {
@@ -291,6 +358,27 @@ const getUserSalesController = async (req, res) => {
   });
 };
 
+const updateOrderStatusController = async (req, res) => {
+
+  const { orderId, confirmed, statusNew } = req.body;
+  // console.log("req.body", req.body);
+
+  const updatedOrder = await Order.findOneAndUpdate(
+    { _id: orderId },
+    {
+      confirmed: confirmed,
+      statusNew: statusNew,
+    },
+    { new: true }
+  );
+
+  res.status(200).json({
+    message: "Order changed successfully",
+    updatedOrder,
+    code: 200,
+  });
+};
+
 module.exports = {
   addOrderController,
   updateOrderController,
@@ -299,4 +387,5 @@ module.exports = {
   deleteOrderController,
   getUserOrdersController,
   getUserSalesController,
+  updateOrderStatusController,
 };
