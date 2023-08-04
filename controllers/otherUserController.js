@@ -14,7 +14,7 @@ const getOtherUserController = async (req, res) => {
 const userSubscriptionsController = async (req, res) => {
   const subscriptions = req.user.userSubscriptions;
   // const subscribedUsers = await User.find({ _id: { $in: subscriptions } });
-  const subscribedUsers = await User.find({});
+  const subscribedUsers = await User.find();
 
   const count = subscribedUsers.length;
   const totalPages = Math.ceil(count / limit);
