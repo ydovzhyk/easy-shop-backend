@@ -269,11 +269,67 @@ const getUserSalesController = async (req, res) => {
   const page = req.query.page || 1;
   const limit = 8;
   const skip = (page - 1) * limit;
-  count = await Order.countDocuments({ sellerId: userId });
-  selectedSales = await Order.find({ sellerId: userId })
-    .sort({ orderDate: -1 })
-    .skip(skip)
-    .limit(limit);
+
+  const selector = req.query.selectorName || "all";
+
+  let selectedSales;
+  let count;
+
+  if (selector === "all") {
+    count = await Order.countDocuments({ sellerId: userId });
+    selectedSales = await Order.find({ sellerId: userId })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
+  if (selector === "new") { 
+    count = await Order.countDocuments({
+      sellerId: userId,
+      confirmed: false,
+      new: true,
+    });
+    selectedSales = await Order.find({
+      sellerId: userId,
+      confirmed: false,
+      new: true,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+  
+  if (selector === "confirmed") {
+    count = await Order.countDocuments({
+      sellerId: userId,
+      confirmed: true,
+      new: false,
+    });
+    selectedSales = await Order.find({
+      sellerId: userId,
+      confirmed: true,
+      new: false,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
+  if (selector === "canceled") {
+    count = await Order.countDocuments({
+      sellerId: userId,
+      confirmed: false,
+      new: false,
+    });
+    selectedSales = await Order.find({
+      sellerId: userId,
+      confirmed: false,
+      new: false,
+    })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
 
   const updatedOrdersArray = [];
   for (const order of selectedSales) {
