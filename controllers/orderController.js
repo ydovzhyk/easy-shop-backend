@@ -193,12 +193,12 @@ const getUserOrdersController = async (req, res) => {
     count = await Order.countDocuments({
       "client.customerId": userId,
       confirmed: false,
-      new: true,
+      statusNew: true,
     });
     selectedOrders = await Order.find({
       "client.customerId": userId,
       confirmed: false,
-      new: true,
+      statusNew: true,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -208,12 +208,12 @@ const getUserOrdersController = async (req, res) => {
     count = await Order.countDocuments({
       "client.customerId": userId,
       confirmed: true,
-      new: false,
+      statusNew: false,
     });
     selectedOrders = await Order.find({
       "client.customerId": userId,
       confirmed: true,
-      new: false,
+      statusNew: false,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -223,12 +223,12 @@ const getUserOrdersController = async (req, res) => {
     count = await Order.countDocuments({
       "client.customerId": userId,
       confirmed: false,
-      new: false,
+      statusNew: false,
     });
     selectedOrders = await Order.find({
       "client.customerId": userId,
       confirmed: false,
-      new: false,
+      statusNew: false,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -287,12 +287,12 @@ const getUserSalesController = async (req, res) => {
     count = await Order.countDocuments({
       sellerId: userId,
       confirmed: false,
-      new: true,
+      statusNew: true,
     });
     selectedSales = await Order.find({
       sellerId: userId,
       confirmed: false,
-      new: true,
+      statusNew: true,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -303,12 +303,12 @@ const getUserSalesController = async (req, res) => {
     count = await Order.countDocuments({
       sellerId: userId,
       confirmed: true,
-      new: false,
+      statusNew: false,
     });
     selectedSales = await Order.find({
       sellerId: userId,
       confirmed: true,
-      new: false,
+      statusNew: false,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -319,12 +319,12 @@ const getUserSalesController = async (req, res) => {
     count = await Order.countDocuments({
       sellerId: userId,
       confirmed: false,
-      new: false,
+      statusNew: false,
     });
     selectedSales = await Order.find({
       sellerId: userId,
       confirmed: false,
-      new: false,
+      statusNew: false,
     })
       .sort({ orderDate: -1 })
       .skip(skip)
@@ -359,7 +359,7 @@ const getUserSalesController = async (req, res) => {
 };
 
 const updateOrderStatusController = async (req, res) => {
-  
+
   const { orderId, confirmed, statusNew } = req.body;
   // console.log("req.body", req.body);
 
