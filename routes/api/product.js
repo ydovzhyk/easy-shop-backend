@@ -61,4 +61,11 @@ router.get(
   ctrlWrapper(ctrl.getProductFromBasketController)
 );
 
+router.get(
+  "/otheruser/:userId",
+  authorize,
+  isValidId,
+  ctrlWrapper(ctrl.getProductOtherUserController)
+);
+
 module.exports = router;

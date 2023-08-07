@@ -427,6 +427,23 @@ const getProductFromBasketController = async (req, res, next) => {
   }
 };
 
+//get Products from OtherUser
+const getProductOtherUserController = async (req, res, next) => {
+  const { userId } = req.params;
+
+  const products = await Product.find({ owner: userId });
+
+  if (products.length === 0) {
+    return res.status(200).json({
+      productsFromOtherUser: [],
+    });
+  } else {
+    return res.status(200).json({
+      productsFromOtherUser: products,
+    });
+  }
+};
+
 module.exports = {
   addProductController,
   updateProductController,
@@ -438,4 +455,5 @@ module.exports = {
   getSelectorProductsController,
   getProductByIdController,
   getProductFromBasketController,
+  getProductOtherUserController,
 };
