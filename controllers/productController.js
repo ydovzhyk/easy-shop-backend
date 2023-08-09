@@ -374,6 +374,7 @@ const getSelectorProductsController = async (req, res) => {
     const products = await Product.find({
       price: { $gte: lowerBound, $lte: upperBound },
     })
+      .sort({ date: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -385,15 +386,11 @@ const getSelectorProductsController = async (req, res) => {
   if (selector === "sale") {
     const count = await Product.countDocuments({
       sale: { $gt: 0 },
-    }).sort({
-      date: 1,
     });
     const products = await Product.find({
       sale: { $gt: 0 },
     })
-      .sort({
-        date: -1,
-      })
+      .sort({ date: -1 })
       .skip(skip)
       .limit(limit);
 
