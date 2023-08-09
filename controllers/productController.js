@@ -342,15 +342,16 @@ const getSelectorProductsController = async (req, res) => {
   const page = req.query.page || 1;
   const selector = req.query.selectorName || "New";
   const limit = 10;
-  const count = await Product.countDocuments();
-  const totalPages = Math.ceil(count / limit);
   const skip = (page - 1) * limit;
 
   if (selector === "new") {
+    const count = await Product.countDocuments();
     const products = await Product.find()
       .sort({ date: -1 })
       .skip(skip)
       .limit(limit);
+
+    const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
       products,
@@ -382,7 +383,21 @@ const getSelectorProductsController = async (req, res) => {
     });
   }
   if (selector === "sale") {
-    const products = await Product.find().skip(skip).limit(limit);
+    const count = await Product.countDocuments({
+      sale: { $gt: 0 },
+    }).sort({
+      date: 1,
+    });
+    const products = await Product.find({
+      sale: { $gt: 0 },
+    })
+      .sort({
+        date: -1,
+      })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(count / limit);
 
     res.status(200).json({
       products,

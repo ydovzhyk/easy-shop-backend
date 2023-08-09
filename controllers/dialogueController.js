@@ -3,7 +3,7 @@ const { User } = require("../models/user");
 const { Product } = require("../models/product");
 const mongoose = require("mongoose");
 
-const { RequestError } = require("../helpers/");
+const { RequestError, sendTechnicialMail } = require("../helpers/");
 const moment = require("moment");
 
 const createDialogueController = async (req, res) => {
@@ -347,6 +347,8 @@ const orderDialogueController = async (req, res) => {
 
   const textOwner = `Добрий день, ваш товар: ${product.nameProduct} замовлений користувачем ${user.username}. Перейдіть у ваш профіль щоб підтвердити чи відхилити угоду.`;
   const textUser = `Добрий день, ви замовили товар: ${product.nameProduct} у користувача ${owner.username}. Перейдіть у ваш профіль щоб переглянути статус замовлення.`;
+
+  sendTechnicialMail(user.email, textUser, owner.email, textOwner);
 
   const currentDate = moment().format("DD.MM.YYYY HH:mm");
   // шукаємо діалог info з owner товару
