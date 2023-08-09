@@ -124,8 +124,10 @@ const getDialogueController = async (req, res) => {
   let reqDialogue = [];
 
   if (productId && !dialogueId) {
+    const product = await Product.findOne({ _id: productId });
+    const productOwner = product.owner;
     reqDialogue = await Dialogue.findOne({
-      $or: [{ userId: userId }, { productOwner: userId }],
+      $or: [{ userId: userId }, { productOwner: productOwner }],
       productId: productId,
       $and: [
         {
@@ -343,7 +345,7 @@ const orderDialogueController = async (req, res) => {
   const infoId = "64cccb7e5b8c2eb706fe655d";
   const info = await User.findOne({ _id: infoId });
 
-  const textOwner = `Добрий день, ваш товар: ${product.nameProduct} замовлений користувачем ${user.userName}. Перейдіть у ваш профіль щоб підтвердити чи відхилити угоду.`;
+  const textOwner = `Добрий день, ваш товар: ${product.nameProduct} замовлений користувачем ${user.username}. Перейдіть у ваш профіль щоб підтвердити чи відхилити угоду.`;
   const textUser = `Добрий день, ви замовили товар: ${product.nameProduct} у користувача ${owner.username}. Перейдіть у ваш профіль щоб переглянути статус замовлення.`;
 
   const currentDate = moment().format("DD.MM.YYYY HH:mm");
@@ -391,8 +393,6 @@ const orderDialogueController = async (req, res) => {
     ],
   });
 
-  console.log(isDialogueUser);
-
   if (!isDialogueOwner) {
     const newDialogue = await Dialogue.create({
       messageArray: {
@@ -420,8 +420,7 @@ const orderDialogueController = async (req, res) => {
 
     await User.findOneAndUpdate(
       { _id: info._id },
-      { $push: { userDialogue: newDialogue._id } },
-      { new: true }
+      { $push: { userDialogue: newDialogue._id } }
     );
 
     await User.findOneAndUpdate(
@@ -519,7 +518,7 @@ const orderDialogueController = async (req, res) => {
     ];
 
     const updatedNewMessages = [
-      ...isDialogueOwner.newMessages,
+      ...isDialogueUser.newMessages,
       {
         userReceiver: user._id,
         message: textUser,

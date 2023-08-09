@@ -25,7 +25,7 @@ const userSubscriptionsController = async (req, res) => {
   if (subscribedUsers.length === 0) {
     res
       .status(200)
-      .json({ userSubscriptions: [], totalPagesUserSubscription: 0 });
+      .json({ userSubscriptions: [], totalPagesUserSubscription: 1 });
   } else {
     const paginatedSubscribedUsers = subscribedUsers.slice(skip, skip + limit);
 

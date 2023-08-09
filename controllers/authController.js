@@ -286,20 +286,30 @@ const updateUserLikes = async (req, res, next) => {
 const getUserLikesBasket = async (req, res, next) => {
   const { _id } = req.user;
 
+  const page = req.body.currentPage || 1;
+  const limit = 5;
+
   const user = await User.findOne({ _id });
   const userLikes = user.userLikes || [];
   const userBasket = user.userBasket || [];
 
-  const likedProducts = await Product.find({
+  const totalLikedProducts = await Product.find({
     _id: { $in: userLikes },
   });
+  const count = totalLikedProducts.length;
+  const totalLikedPages = Math.ceil(count / limit);
+  const skip = (page - 1) * limit;
+
+  const likedProducts = totalLikedProducts.slice(skip, skip + limit);
 
   const productIds = userBasket.map((item) => {
     return item.productId;
   });
   const basketProducts = await Product.find({ _id: { $in: productIds } });
 
-  return res.status(200).json({ likedProducts, basketProducts });
+  return res
+    .status(200)
+    .json({ likedProducts, basketProducts, totalLikedPages });
 };
 
 module.exports = {
