@@ -69,4 +69,11 @@ router.post(
   ctrlWrapper(ctrl.getUserLikesBasket)
 );
 
+router.post(
+  "/subscribes",
+  authorize,
+  isValidId,
+  ctrlWrapper(ctrl.updateUserSubscribes)
+);
+
 module.exports = router;

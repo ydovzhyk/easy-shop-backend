@@ -312,6 +312,32 @@ const getUserLikesBasket = async (req, res, next) => {
     .json({ likedProducts, basketProducts, totalLikedPages });
 };
 
+const updateUserSubscribes = async (req, res, next) => {
+  const user = req.user;
+  const { userId } = req.body;
+
+  if (user.userSubscriptions.includes(userId)) {
+    return res.status(200).json(user);
+  } else {
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { $addToSet: { userSubscriptions: userId } },
+      { new: true }
+    );
+
+    const otherUser = await User.findById(userId);
+
+    if (otherUser.userSubscriptions.includes(user._id)) {
+      return res.status(200).json(updatedUser);
+    } else {
+      await User.findByIdAndUpdate(userId, {
+        $addToSet: { userFollowers: user._id },
+      });
+      return res.status(200).json(updatedUser);
+    }
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -324,4 +350,5 @@ module.exports = {
   updateUserBasket,
   updateUserLikes,
   getUserLikesBasket,
+  updateUserSubscribes,
 };
