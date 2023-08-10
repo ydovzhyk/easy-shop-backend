@@ -345,8 +345,8 @@ const orderDialogueController = async (req, res) => {
   const infoId = "64cccb7e5b8c2eb706fe655d";
   const info = await User.findOne({ _id: infoId });
 
-  const textOwner = `Добрий день, ваш товар: ${product.nameProduct} замовлений користувачем ${user.username}. Перейдіть у ваш профіль щоб підтвердити чи відхилити угоду.`;
-  const textUser = `Добрий день, ви замовили товар: ${product.nameProduct} у користувача ${owner.username}. Перейдіть у ваш профіль щоб переглянути статус замовлення.`;
+  const textOwner = `Добрий день, ваш товар: ${product.nameProduct} замовлений користувачем ${user.username}. Перейдіть у ваш профіль, щоб підтвердити чи відхилити угоду.`;
+  const textUser = `Добрий день, ви замовили товар: ${product.nameProduct} у користувача ${owner.username}. Перейдіть у ваш профіль, щоб переглянути статус замовлення.`;
 
   sendTechnicialMail(user.email, textUser, owner.email, textOwner);
 
