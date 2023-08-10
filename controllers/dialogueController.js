@@ -1,6 +1,7 @@
 const { Dialogue } = require("../models/dialogue");
 const { User } = require("../models/user");
 const { Product } = require("../models/product");
+const { Order } = require("../models/order");
 const mongoose = require("mongoose");
 
 const { RequestError, sendTechnicialMail } = require("../helpers/");
@@ -338,15 +339,70 @@ const checkUpdatesDialogueController = async (data) => {
 };
 
 const orderDialogueController = async (req, res) => {
-  const { productId, productOwner } = req.body;
+  const { productId, productOwner, typeDialogue, orderId } = req.body;
   const user = req.user;
-  const product = await Product.findById(productId);
-  const owner = await User.findById(productOwner);
   const infoId = "64cccb7e5b8c2eb706fe655d";
   const info = await User.findOne({ _id: infoId });
+  let textOwner = null;
+  let textUser = null;
+  let product = null;
+  let owner = null;
 
-  const textOwner = `Добрий день, ваш товар: ${product.nameProduct} замовлений користувачем ${user.username}. Перейдіть у ваш профіль, щоб підтвердити чи відхилити угоду.`;
-  const textUser = `Добрий день, ви замовили товар: ${product.nameProduct} у користувача ${owner.username}. Перейдіть у ваш профіль, щоб переглянути статус замовлення.`;
+  if (typeDialogue === "checkout") {
+    product = await Product.findById(productId);
+    owner = await User.findById(productOwner);
+
+    textOwner = `Добрий день, ваш товар: ${product.nameProduct} замовлений користувачем ${user.username}. Перейдіть у ваш профіль, щоб підтвердити чи відхилити угоду.`;
+    textUser = `Добрий день, ви замовили товар: ${product.nameProduct} у користувача ${owner.username}. Перейдіть у ваш профіль, щоб переглянути статус замовлення.`;
+  }
+
+  if (typeDialogue === "sales") {
+    const order = await Order.findById(orderId);
+    const numberProducts = order.products.length;
+    const productOwner = order.client.customerId;
+    owner = await User.findById(productOwner);
+    if (numberProducts === 1) {
+      const productId = order.products[0]._id;
+      product = await Product.findById(productId);
+
+      textUser = `Добрий день, ви підтвердили замовлення №${order.orderNumber} на товар: ${product.nameProduct}. Якщо у вас виникли якісь запитання до користувача ${owner.username}, зв'яжіться з ним через повідомлення на сайті.`;
+      textOwner = `Добрий день, користувач ${user.username} підтвердив ваше замовлення №${order.orderNumber} на товар: ${product.nameProduct}. Якщо у вас виникли якісь запитання до користувача ${user.username}, зв'яжіться з ним через повідомлення на сайті.`;
+    }
+    if (numberProducts > 1) {
+      let productNames = [];
+      const productId = order.products[0]._id;
+      product = await Product.findById(productId);
+
+      const getProductName = async (productId) => {
+        const product = await Product.findById(productId);
+        return product.nameProduct;
+      };
+
+      await Promise.all(
+        order.products.map(async (product) => {
+          const nameProduct = await getProductName(product._id);
+          productNames.push(nameProduct);
+        })
+      );
+
+      textUser = `Добрий день, ви підтвердили замовлення №${
+        order.orderNumber
+      } на товари: ${productNames.join(
+        ", "
+      )}. Якщо у вас виникли якісь запитання до користувача ${
+        owner.username
+      }, зв'яжіться з ним через повідомлення на сайті.`;
+      textOwner = `Добрий день, користувач ${
+        user.username
+      } підтвердив ваше замовлення №${
+        order.orderNumber
+      } на товари: ${productNames.join(
+        ", "
+      )}. Якщо у вас виникли якісь запитання до користувача ${
+        user.username
+      }, зв'яжіться з ним через повідомлення на сайті`;
+    }
+  }
 
   sendTechnicialMail(user.email, textUser, owner.email, textOwner);
 
@@ -404,7 +460,7 @@ const orderDialogueController = async (req, res) => {
       },
       userId: info._id,
       userAvatar: info.userAvatar,
-      productId: productId,
+      productId: product._id,
       productOwner: owner._id,
       productOwnerAvatar: owner.userAvatar,
       statusDialogue: [
@@ -458,7 +514,7 @@ const orderDialogueController = async (req, res) => {
       {
         messageArray: updatedMessageArray,
         newMessages: updatedNewMessages,
-        productId: productId,
+        productId: product._id,
       }
     );
 
@@ -479,7 +535,7 @@ const orderDialogueController = async (req, res) => {
       },
       userId: info._id,
       userAvatar: info.userAvatar,
-      productId: productId,
+      productId: product._id,
       productOwner: user._id,
       productOwnerAvatar: user.userAvatar,
       statusDialogue: [
@@ -533,7 +589,7 @@ const orderDialogueController = async (req, res) => {
       {
         messageArray: updatedMessageArray,
         newMessages: updatedNewMessages,
-        productId: productId,
+        productId: product._id,
       }
     );
 
