@@ -400,7 +400,51 @@ const orderDialogueController = async (req, res) => {
         ", "
       )}. Якщо у вас виникли якісь запитання до користувача ${
         user.username
-      }, зв'яжіться з ним через повідомлення на сайті`;
+      }, зв'яжіться з ним через повідомлення на сайті.`;
+    }
+  }
+
+  if (typeDialogue === "cancel") {
+    const order = await Order.findById(orderId);
+    const numberProducts = order.products.length;
+    const productOwner = order.client.customerId;
+    owner = await User.findById(productOwner);
+    if (numberProducts === 1) {
+      const productId = order.products[0]._id;
+      product = await Product.findById(productId);
+
+      textUser = `Добрий день, ви відхилили замовлення №${order.orderNumber} на товар: ${product.nameProduct}. Зв'яжіться з користувачем ${owner.username} через повідомлення на сайті, для уточнення деталей.`;
+      textOwner = `Добрий день, користувач ${user.username} відхилив ваше замовлення №${order.orderNumber} на товар: ${product.nameProduct}. Зв'яжіться з користувачем ${user.username} через повідомлення на сайті, для уточнення деталей.`;
+    }
+    if (numberProducts > 1) {
+      let productNames = [];
+      const productId = order.products[0]._id;
+      product = await Product.findById(productId);
+
+      const getProductName = async (productId) => {
+        const product = await Product.findById(productId);
+        return product.nameProduct;
+      };
+
+      await Promise.all(
+        order.products.map(async (product) => {
+          const nameProduct = await getProductName(product._id);
+          productNames.push(nameProduct);
+        })
+      );
+
+      textUser = `Добрий день, ви відхилили замовлення №${
+        order.orderNumber
+      } на товари: ${productNames.join(", ")}. Зв'яжіться з користувачем ${
+        owner.username
+      } через повідомлення на сайті, для уточнення деталей.`;
+      textOwner = `Добрий день, користувач ${
+        user.username
+      } відхилив ваше замовлення №${
+        order.orderNumber
+      } на товари: ${productNames.join(", ")}. Зв'яжіться з користувачем ${
+        user.username
+      } через повідомлення на сайті, для уточнення деталей.`;
     }
   }
 
