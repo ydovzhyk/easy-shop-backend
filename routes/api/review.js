@@ -21,7 +21,7 @@ router.get("/:reviewId", ctrlWrapper(ctrl.getReviewByIdController));
 // delete Review by id
 router.delete(
   "/delete/:reviewId",
-  authorize,
+//   authorize,
   ctrlWrapper(ctrl.deleteReviewController)
 );
 
@@ -34,5 +34,7 @@ router.post(
 
 // get user feedback
 router.post("/user-feedback", authorize, ctrlWrapper(ctrl.getUserFeedbackController));
+
+router.get("/", ctrlWrapper(ctrl.getReviewsController));
 
 module.exports = router;

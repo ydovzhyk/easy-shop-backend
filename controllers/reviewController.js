@@ -99,15 +99,21 @@ const getUserReviewsController = async (req, res) => {
 
 // get User feedback
 const getUserFeedbackController = async (req, res) => {
-  const { _id: userId } = req.user;
-  // console.log(userId);
-    const userFeedback = await Review.find({ sellerId: userId }).sort({
-      orderDate: -1,
+//   const { _id: userId } = req.user;
+    const { sellerId} = req.body;
+  console.log(sellerId);
+    const userFeedback = await Review.find({ sellerId: sellerId }).sort({
+      reviewDate: -1,
     });
 
   res.status(200).json({
     feedback: userFeedback,
   });
+};
+
+const getReviewsController = async (req, res) => {
+  const reviews = await Review.find();
+  res.status(200).json(reviews);
 };
 
 module.exports = {
@@ -116,4 +122,5 @@ module.exports = {
   deleteReviewController,
   getUserReviewsController,
   getUserFeedbackController,
+  getReviewsController,
 };

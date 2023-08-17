@@ -33,7 +33,7 @@ const reviewSchema = new Schema(
       default: "",
     },
     rating: {
-      type: String,
+      type: Number,
       default: "1",
     },
     feedback: {
@@ -51,7 +51,7 @@ const Review = model("review", reviewSchema);
 const addReviewSchema = Joi.object({
   sellerId: Joi.string().required(),
   products: Joi.array().required(),
-  rating: Joi.string().required(),
+  rating: Joi.number().required(),
   feedback: Joi.string().required(),
   orderId: Joi.string().required(),
 });
