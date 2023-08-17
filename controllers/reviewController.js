@@ -5,7 +5,7 @@ const moment = require("moment");
 
 const addReviewController = async (req, res) => {
   const { _id: clientId, username, userAvatar } = req.user;
-  const { orderId, sellerId, products, rating } = req.body;
+  const { orderId, sellerId, products, rating, feedback } = req.body;
   const currentDate = moment().format("DD.MM.YYYY HH:mm");
 
   const newReview = await Review.create({
