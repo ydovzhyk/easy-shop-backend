@@ -89,7 +89,7 @@ const getUserReviewsController = async (req, res) => {
   // console.log(userId);
 
   const userReviews = await Review.find({ "reviewer.reviewerId": userId }).sort(
-    { orderDate: -1 }
+    { reviewDate: -1 }
   );
  
   res.status(200).json({
