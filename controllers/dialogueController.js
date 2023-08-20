@@ -137,6 +137,8 @@ const getDialogueController = async (req, res) => {
               $or: [
                 { userOne: userId, status: true },
                 { userTwo: userId, status: true },
+                { userOne: userId, status: false },
+                { userTwo: userId, status: false },
               ],
             },
           },
@@ -153,6 +155,8 @@ const getDialogueController = async (req, res) => {
               $or: [
                 { userOne: userId, status: true },
                 { userTwo: userId, status: true },
+                { userOne: userId, status: false },
+                { userTwo: userId, status: false },
               ],
             },
           },
@@ -329,7 +333,6 @@ const deleteDialogueNewMessageController = async (req, res) => {
 const checkUpdatesDialogueController = async (data) => {
   const userId = data.userId;
   const newMessage = data.newMessage;
-  console.log("Це дата в контроллері", userId, newMessage);
   const currentUser = await User.findById(userId);
   if (currentUser.newMessage !== newMessage) {
     return { message: true };
@@ -451,7 +454,6 @@ const orderDialogueController = async (req, res) => {
   sendTechnicialMail(user.email, textUser, owner.email, textOwner);
 
   const currentDate = moment().format("DD.MM.YYYY HH:mm");
-  // шукаємо діалог info з owner товару
   const isDialogueOwner = await Dialogue.findOne({
     $and: [
       {
@@ -473,7 +475,6 @@ const orderDialogueController = async (req, res) => {
     ],
   });
 
-  // шукаємо діалог з info і user
   const isDialogueUser = await Dialogue.findOne({
     $and: [
       {
