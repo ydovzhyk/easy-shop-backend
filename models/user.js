@@ -89,7 +89,7 @@ const userSchema = new Schema(
     },
     userSales: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
     userReviews: [{ type: Schema.Types.ObjectId, ref: "Reviews" }],
-    userFeedback: [{ type: Schema.Types.ObjectId, ref: "Reviews" }],
+    userFeedback: [{ type: Schema.Types.Mixed, ref: "Reviews" }],
   },
 
   { minimize: false }

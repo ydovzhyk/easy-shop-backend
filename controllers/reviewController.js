@@ -28,7 +28,11 @@ const addReviewController = async (req, res) => {
   );
     const updatedSeller = await User.findOneAndUpdate(
       { _id: newReview.sellerId },
-      { $push: { userFeedback: newReview._id } },
+      {
+        $push: {
+          userFeedback: { id: newReview._id, rating: newReview.rating },
+        },
+      },
       { new: true }
     );
 
@@ -68,7 +72,7 @@ const deleteReviewController = async (req, res) => {
 
     const updatedSeller = await User.findOneAndUpdate(
       { _id: sellerId },
-      { $pull: { userFeedback: reviewId } },
+      { $pull: { userFeedback: {id: reviewId }} },
       { new: true }
     );
 
