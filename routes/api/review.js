@@ -28,12 +28,15 @@ router.delete(
 // get user Review
 router.post(
   "/user-reviews",
-  authorize,
+//   authorize,
   ctrlWrapper(ctrl.getUserReviewsController)
 );
 
 // get user feedback
-router.post("/user-feedback", authorize, ctrlWrapper(ctrl.getUserFeedbackController));
+router.post("/user-feedback",
+    // authorize,
+    ctrlWrapper(ctrl.getUserFeedbackController)
+);
 
 router.get("/", ctrlWrapper(ctrl.getReviewsController));
 

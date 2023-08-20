@@ -85,7 +85,8 @@ const deleteReviewController = async (req, res) => {
 
 // get User Reviews
 const getUserReviewsController = async (req, res) => {
-  const { _id: userId } = req.user;
+    // const { _id: userId } = req.user;
+    const { userId } = req.body;
   // console.log(userId);
 
   const userReviews = await Review.find({ "reviewer.reviewerId": userId }).sort(
