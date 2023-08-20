@@ -166,7 +166,7 @@ const deleteOrderController = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error deleting Order" });
   }
-  res.status(200).json({ message: "Order deleted" });
+  // res.status(200).json({ message: "Order deleted" });
 };
 
 // get User orders
