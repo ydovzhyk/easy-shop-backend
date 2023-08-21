@@ -2,6 +2,7 @@ const { User } = require("../models/user");
 const { Review } = require("../models/review");
 const { RequestError } = require("../helpers");
 const moment = require("moment");
+const mongoose = require("mongoose");
 
 const addReviewController = async (req, res) => {
   const { _id: clientId, username, userAvatar } = req.user;
@@ -72,7 +73,8 @@ const deleteReviewController = async (req, res) => {
 
     const updatedSeller = await User.findOneAndUpdate(
       { _id: sellerId },
-      { $pull: { userFeedback: {id: reviewId }} },
+      { $pull: { userFeedback: { id: mongoose.Types.ObjectId(reviewId) } } },
+    //   { userFeedback: []},
       { new: true }
     );
 
@@ -84,7 +86,7 @@ const deleteReviewController = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error deleting Review" });
   }
-  res.status(200).json({ message: "Review deleted" });
+//   res.status(200).json({ message: "Review deleted" });
 };
 
 // get User Reviews
