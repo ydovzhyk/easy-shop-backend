@@ -280,7 +280,11 @@ const updateUserLikes = async (req, res, next) => {
     _id: { $in: lastLikes },
   });
 
-  return res.status(200).json({ updatedUser, likedProducts });
+  const count = likedProducts.length;
+  const limit = 5;
+  const totalLikedPages = Math.ceil(count / limit);
+
+  return res.status(200).json({ updatedUser, likedProducts, totalLikedPages });
 };
 
 const getUserLikesBasket = async (req, res, next) => {

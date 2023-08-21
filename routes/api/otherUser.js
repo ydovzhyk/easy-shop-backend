@@ -15,4 +15,10 @@ router.post(
   ctrlWrapper(ctrl.userSubscriptionsController)
 );
 
+router.post(
+  "/subscriptions/delete",
+  authorize,
+  ctrlWrapper(ctrl.userDeleteSubscriptionsController)
+);
+
 module.exports = router;
