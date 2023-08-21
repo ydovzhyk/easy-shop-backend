@@ -135,15 +135,15 @@ const getOrdersController = async (req, res) => {
 const deleteOrderController = async (req, res) => {
   const { orderId } = req.params;
   const orderById = await Order.findById(orderId);
-  // const ownerId = orderById.client.customerId;
+  const ownerId = orderById.client.customerId;
   const sellerId = orderById.sellerId;
-  const { _id: owner } = req.user;
+  // const { _id: owner } = req.user;
   try {
     await Order.deleteOne({ _id: orderId });
 
     const updatedClient = await User.findOneAndUpdate(
-      { _id: owner },
-      // { _id: ownerId },
+      // { _id: owner },
+      { _id: ownerId },
       { $pull: { userOrders: orderId } },
       { new: true }
     );
