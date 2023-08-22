@@ -21,20 +21,20 @@ router.get("/:reviewId", ctrlWrapper(ctrl.getReviewByIdController));
 // delete Review by id
 router.delete(
   "/delete/:reviewId",
-//   authorize,
+  authorize,
   ctrlWrapper(ctrl.deleteReviewController)
 );
 
 // get user Review
 router.post(
   "/user-reviews",
-//   authorize,
+  authorize,
   ctrlWrapper(ctrl.getUserReviewsController)
 );
 
 // get user feedback
 router.post("/user-feedback",
-    // authorize,
+    authorize,
     ctrlWrapper(ctrl.getUserFeedbackController)
 );
 

@@ -86,14 +86,11 @@ const deleteReviewController = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error deleting Review" });
   }
-//   res.status(200).json({ message: "Review deleted" });
 };
 
 // get User Reviews
 const getUserReviewsController = async (req, res) => {
-    // const { _id: userId } = req.user;
     const { userId } = req.body;
-  // console.log(userId);
 
   const userReviews = await Review.find({ "reviewer.reviewerId": userId }).sort(
     { reviewDate: -1 }
@@ -106,9 +103,7 @@ const getUserReviewsController = async (req, res) => {
 
 // get User feedback
 const getUserFeedbackController = async (req, res) => {
-//   const { _id: userId } = req.user;
     const { sellerId} = req.body;
-  console.log(sellerId);
     const userFeedback = await Review.find({ sellerId: sellerId }).sort({
       reviewDate: -1,
     });
