@@ -59,7 +59,6 @@ const addOrderController = async (req, res) => {
 };
 
 const updateOrderController = async (req, res) => {
-    // const { orderId } = req.params;
   const {
     orderId,
     customerId,
@@ -69,7 +68,7 @@ const updateOrderController = async (req, res) => {
     delivery,
     customerTel,
   } = req.body;
-    // console.log("req.body", req.body);
+
     const order = await Order.findById(orderId);
 
     const updatedOrder = await Order.findOneAndUpdate(
@@ -92,8 +91,7 @@ const updateOrderController = async (req, res) => {
       },
       { new: true }
     );  
-// console.log("updatedOrder", updatedOrder);
-// console.log("order.sellerId ", order.sellerId);
+  
   const updatedSeller = await User.findOneAndUpdate(
     { _id: order.sellerId },
     { $push: { userSales: orderId } },
@@ -135,15 +133,13 @@ const getOrdersController = async (req, res) => {
 const deleteOrderController = async (req, res) => {
   const { orderId } = req.params;
   const orderById = await Order.findById(orderId);
-  // const ownerId = orderById.client.customerId;
+  const ownerId = orderById.client.customerId;
   const sellerId = orderById.sellerId;
-  const { _id: owner } = req.user;
   try {
     await Order.deleteOne({ _id: orderId });
 
     const updatedClient = await User.findOneAndUpdate(
-      { _id: owner },
-      // { _id: ownerId },
+      { _id: ownerId },
       { $pull: { userOrders: orderId } },
       { new: true }
     );
@@ -166,13 +162,12 @@ const deleteOrderController = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error deleting Order" });
   }
-  // res.status(200).json({ message: "Order deleted" });
 };
 
 // get User orders
 const getUserOrdersController = async (req, res) => {
   const { _id: userId } = req.user;
-  // console.log(userId);
+
   const page = req.query.page || 1;
   const limit = 8;
   const skip = (page - 1) * limit;
@@ -265,7 +260,7 @@ const getUserOrdersController = async (req, res) => {
 // get User orders
 const getUserSalesController = async (req, res) => {
   const { _id: userId } = req.user;
-  // console.log(userId);
+
   const page = req.query.page || 1;
   const limit = 8;
   const skip = (page - 1) * limit;
@@ -361,7 +356,6 @@ const getUserSalesController = async (req, res) => {
 const updateOrderStatusController = async (req, res) => {
 
   const { orderId, confirmed, statusNew } = req.body;
-  // console.log("req.body", req.body);
 
   const updatedOrder = await Order.findOneAndUpdate(
     { _id: orderId },
