@@ -27,15 +27,29 @@ const addReviewController = async (req, res) => {
     { $push: { userReviews: newReview._id } },
     { new: true }
   );
-    const updatedSeller = await User.findOneAndUpdate(
-      { _id: newReview.sellerId },
-      {
-        $push: {
-          userFeedback: { id: newReview._id, rating: newReview.rating },
-        },
+  const updatedSeller = await User.findOneAndUpdate(
+    { _id: newReview.sellerId },
+    {
+      $push: {
+        userFeedback: { id: newReview._id, rating: newReview.rating },
       },
-      { new: true }
-    );
+    },
+    { new: true }
+  );
+
+  const sellerFeedback = updatedSeller.userFeedback;
+  const totalRating = sellerFeedback.reduce(
+    (sum, feedback) => sum + feedback.rating,
+    0
+  );
+
+  const averageRating = totalRating / sellerFeedback.length;
+  const roundedAverageRating = averageRating.toFixed(2);
+
+  await User.findOneAndUpdate(
+    { _id: newReview.sellerId },
+    { rating: roundedAverageRating }
+  );
 
   res.status(200).json({
     message: "Review added successfully",
@@ -74,7 +88,7 @@ const deleteReviewController = async (req, res) => {
     const updatedSeller = await User.findOneAndUpdate(
       { _id: sellerId },
       { $pull: { userFeedback: { id: mongoose.Types.ObjectId(reviewId) } } },
-    //   { userFeedback: []},
+      //   { userFeedback: []},
       { new: true }
     );
 
@@ -90,12 +104,12 @@ const deleteReviewController = async (req, res) => {
 
 // get User Reviews
 const getUserReviewsController = async (req, res) => {
-    const { userId } = req.body;
+  const { userId } = req.body;
 
   const userReviews = await Review.find({ "reviewer.reviewerId": userId }).sort(
     { reviewDate: -1 }
   );
- 
+
   res.status(200).json({
     reviews: userReviews,
   });
@@ -103,10 +117,10 @@ const getUserReviewsController = async (req, res) => {
 
 // get User feedback
 const getUserFeedbackController = async (req, res) => {
-    const { sellerId} = req.body;
-    const userFeedback = await Review.find({ sellerId: sellerId }).sort({
-      reviewDate: -1,
-    });
+  const { sellerId } = req.body;
+  const userFeedback = await Review.find({ sellerId: sellerId }).sort({
+    reviewDate: -1,
+  });
 
   res.status(200).json({
     feedback: userFeedback,
