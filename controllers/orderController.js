@@ -7,7 +7,7 @@ const moment = require("moment");
 const addOrderController = async (req, res) => {
   const { _id: clientId, firstName, secondName, surName, tel } = req.user;
   const { ownerName, ownerId, products, totalSum } = req.body;
-  const currentDate = moment().format("DD.MM.YYYY HH:mm");
+  const currentDate = moment().tz("Europe/Kiev").format("DD.MM.YYYY HH:mm");
 
   const newOrder = await Order.create({
     sellerName: ownerName,
