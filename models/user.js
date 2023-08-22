@@ -92,6 +92,8 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    userReviews: [{ type: Schema.Types.ObjectId, ref: "Reviews" }],
+    userFeedback: [{ type: Schema.Types.Mixed, ref: "Reviews" }],
   },
 
   { minimize: false }
