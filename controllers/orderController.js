@@ -2,7 +2,6 @@ const { User } = require("../models/user");
 const { Order } = require("../models/order");
 const { Product } = require("../models/product");
 const { RequestError } = require("../helpers");
-const moment = require("moment");
 const moment = require("moment-timezone");
 
 const addOrderController = async (req, res) => {

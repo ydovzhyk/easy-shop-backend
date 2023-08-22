@@ -6,7 +6,6 @@ const mongoose = require("mongoose");
 const moment = require("moment-timezone");
 
 const { RequestError, sendTechnicialMail } = require("../helpers/");
-const moment = require("moment");
 
 const createDialogueController = async (req, res) => {
   const { text, productId, productOwner, dialogueId } = req.body;
