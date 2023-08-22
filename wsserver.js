@@ -5,16 +5,10 @@ const dialogueController = require("./controllers/dialogueController");
 const connectedClients = {};
 
 function findConnectionIdByWebSocket(ws) {
-  return Object.keys(connectedClients).find((id) =>
-    connectedClients[id].includes(ws)
+  return Object.keys(connectedClients).find(
+    (id) => connectedClients[id] === ws
   );
 }
-
-// function findConnectionIdByWebSocket(ws) {
-//   return Object.keys(connectedClients).find(
-//     (id) => connectedClients[id] === ws
-//   );
-// }
 
 function startWebSocketServer(httpServer) {
   const wss = new Server({ server: httpServer });
