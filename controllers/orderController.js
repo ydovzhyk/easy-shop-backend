@@ -7,8 +7,8 @@ const moment = require("moment");
 const addOrderController = async (req, res) => {
   const { _id: clientId, firstName, secondName, surName, tel } = req.user;
   const { ownerName, ownerId, products, totalSum } = req.body;
-  const currentDate = moment().format("DD.MM.YYYY HH:mm");  
-  
+  const currentDate = moment().format("DD.MM.YYYY HH:mm");
+
   const newOrder = await Order.create({
     sellerName: ownerName,
     sellerId: ownerId,
@@ -29,7 +29,11 @@ const addOrderController = async (req, res) => {
     { new: true }
   );
 
-  const orderNumberFromId =   newOrder._id.toString().match(/\d+/g).join("").slice(0, 8);
+  const orderNumberFromId = newOrder._id
+    .toString()
+    .match(/\d+/g)
+    .join("")
+    .slice(0, 8);
 
   const updatedOrder = await Order.findOneAndUpdate(
     { _id: newOrder._id },
@@ -69,29 +73,29 @@ const updateOrderController = async (req, res) => {
     customerTel,
   } = req.body;
 
-    const order = await Order.findById(orderId);
+  const order = await Order.findById(orderId);
 
-    const updatedOrder = await Order.findOneAndUpdate(
-      { _id: orderId },
-      {
-        client: {
-          customerId: customerId ? customerId : order.customerId,
-          customerSecondName: customerSecondName
-            ? customerSecondName
-            : order.customerSecondName,
-          customerFirstName: customerFirstName
-            ? customerFirstName
-            : order.customerFirstName,
-          customerSurName: customerSurName
-            ? customerSurName
-            : order.customerSurName,
-          customerTel: customerTel ? customerTel : order.customerTel,
-        },
-        delivery: delivery ? delivery : order.delivery,
+  const updatedOrder = await Order.findOneAndUpdate(
+    { _id: orderId },
+    {
+      client: {
+        customerId: customerId ? customerId : order.customerId,
+        customerSecondName: customerSecondName
+          ? customerSecondName
+          : order.customerSecondName,
+        customerFirstName: customerFirstName
+          ? customerFirstName
+          : order.customerFirstName,
+        customerSurName: customerSurName
+          ? customerSurName
+          : order.customerSurName,
+        customerTel: customerTel ? customerTel : order.customerTel,
       },
-      { new: true }
-    );  
-  
+      delivery: delivery ? delivery : order.delivery,
+    },
+    { new: true }
+  );
+
   const updatedSeller = await User.findOneAndUpdate(
     { _id: order.sellerId },
     { $push: { userSales: orderId } },
@@ -173,10 +177,10 @@ const getUserOrdersController = async (req, res) => {
   const skip = (page - 1) * limit;
 
   const selector = req.query.selectorName || "all";
-  
+
   let selectedOrders;
   let count;
-  
+
   if (selector === "all") {
     count = await Order.countDocuments({ "client.customerId": userId });
     selectedOrders = await Order.find({ "client.customerId": userId })
@@ -278,7 +282,7 @@ const getUserSalesController = async (req, res) => {
       .limit(limit);
   }
 
-  if (selector === "new") { 
+  if (selector === "new") {
     count = await Order.countDocuments({
       sellerId: userId,
       confirmed: false,
@@ -293,7 +297,7 @@ const getUserSalesController = async (req, res) => {
       .skip(skip)
       .limit(limit);
   }
-  
+
   if (selector === "confirmed") {
     count = await Order.countDocuments({
       sellerId: userId,
@@ -354,7 +358,6 @@ const getUserSalesController = async (req, res) => {
 };
 
 const updateOrderStatusController = async (req, res) => {
-
   const { orderId, confirmed, statusNew } = req.body;
 
   const updatedOrder = await Order.findOneAndUpdate(
@@ -364,6 +367,13 @@ const updateOrderStatusController = async (req, res) => {
       statusNew: statusNew,
     },
     { new: true }
+  );
+
+  const seller = updatedOrder.sellerId;
+
+  await User.findOneAndUpdate(
+    { _id: seller },
+    { $inc: { successfulSales: 1 } }
   );
 
   res.status(200).json({

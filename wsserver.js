@@ -25,13 +25,11 @@ function startWebSocketServer(httpServer) {
         JSON.parse(message.toString())
       );
 
-      console.log("Це відповідь сервера", response);
-
       const senderId = findConnectionIdByWebSocket(ws);
       const senderWebSocket = connectedClients[senderId];
 
       if (senderWebSocket && senderWebSocket.readyState === 1) {
-        console.log("Зайшли відправити відповідь");
+        console.log("Зайшли відправити відповідь", response.message);
         senderWebSocket.send(JSON.stringify(response.message));
       }
     });
