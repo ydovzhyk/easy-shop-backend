@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 const addReviewController = async (req, res) => {
   const { _id: clientId, username, userAvatar } = req.user;
   const { orderId, sellerId, products, rating, feedback } = req.body;
-  const currentDate = moment().format("DD.MM.YYYY HH:mm");
+  const currentDate = moment().tz("Europe/Kiev").format("DD.MM.YYYY HH:mm");
 
   const newReview = await Review.create({
     sellerId,

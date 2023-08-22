@@ -12,7 +12,7 @@ const createDialogueController = async (req, res) => {
 
   const userId = req.user._id;
 
-  const currentDate = moment().format("DD.MM.YYYY HH:mm");
+  const currentDate = moment().tz("Europe/Kiev").format("DD.MM.YYYY HH:mm");
 
   const isDialogue = await Dialogue.findOne({
     _id: dialogueId,
@@ -453,7 +453,7 @@ const orderDialogueController = async (req, res) => {
 
   sendTechnicialMail(user.email, textUser, owner.email, textOwner);
 
-  const currentDate = moment().format("DD.MM.YYYY HH:mm");
+  const currentDate = moment().tz("Europe/Kiev").format("DD.MM.YYYY HH:mm");
   const isDialogueOwner = await Dialogue.findOne({
     $and: [
       {
