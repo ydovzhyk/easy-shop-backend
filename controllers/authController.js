@@ -321,7 +321,10 @@ const updateUserSubscribes = async (req, res, next) => {
   const { userId } = req.body;
 
   if (user.userSubscriptions.includes(userId)) {
-    return res.status(200).json(user);
+    return res.status(200).json({
+      updatedUser: user,
+      message: "You are already subscribed to this user.",
+    });
   } else {
     const updatedUser = await User.findByIdAndUpdate(
       user._id,
@@ -332,12 +335,18 @@ const updateUserSubscribes = async (req, res, next) => {
     const otherUser = await User.findById(userId);
 
     if (otherUser.userSubscriptions.includes(user._id)) {
-      return res.status(200).json(updatedUser);
+      return res.status(200).json({
+        updatedUser: updatedUser,
+        message: "You have successfully subscribed to the user.",
+      });
     } else {
       await User.findByIdAndUpdate(userId, {
         $addToSet: { userFollowers: user._id },
       });
-      return res.status(200).json(updatedUser);
+      return res.status(200).json({
+        updatedUser: updatedUser,
+        message: "You have successfully subscribed to the user.",
+      });
     }
   }
 };
