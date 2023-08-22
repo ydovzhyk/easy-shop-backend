@@ -25,6 +25,8 @@ function startWebSocketServer(httpServer) {
         JSON.parse(message.toString())
       );
 
+      console.log("Це відповідь сервера", response);
+
       const senderId = findConnectionIdByWebSocket(ws);
       const senderWebSocket = connectedClients[senderId];
 

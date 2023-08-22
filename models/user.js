@@ -88,6 +88,10 @@ const userSchema = new Schema(
       default: 0,
     },
     userSales: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
+    ranking: {
+      type: Number,
+      default: 0,
+    },
   },
 
   { minimize: false }
