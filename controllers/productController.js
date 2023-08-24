@@ -180,6 +180,8 @@ const getProductsQueryController = async (req, res) => {
   const filterData = JSON.parse(req.query.filterData);
   const limit = 6;
 
+  console.log("searchQuery", searchQuery);
+
   const searchKeywords = searchQuery.toLowerCase().split(" ");
 
   const getRegexQueries = (searchKeywords) => {
