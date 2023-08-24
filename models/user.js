@@ -82,6 +82,10 @@ const userSchema = new Schema(
     userDialogue: [{ type: Schema.Types.ObjectId, ref: "Dialogue" }],
     userOrders: [{ type: Schema.Types.ObjectId, ref: "Orders" }],
     userSubscriptions: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    userSearchSubscription: {
+      type: [String],
+      default: [],
+    },
     userFollowers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     newMessage: {
       type: Number,

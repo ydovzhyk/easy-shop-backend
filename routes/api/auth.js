@@ -76,4 +76,11 @@ router.post(
   ctrlWrapper(ctrl.updateUserSubscribes)
 );
 
+router.post(
+  "/subscribes/search",
+  authorize,
+  // validateBody(schemas.updateUserSettingsSchema),
+  ctrlWrapper(ctrl.updateUserSearchSubscribes)
+);
+
 module.exports = router;

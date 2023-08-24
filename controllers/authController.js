@@ -351,6 +351,54 @@ const updateUserSubscribes = async (req, res, next) => {
   }
 };
 
+const updateUserSearchSubscribes = async (req, res, next) => {
+  const user = req.user;
+  const { urlSubscription, status } = req.body;
+  let currentSearchSubscriptions = user.userSearchSubscription;
+
+  if (currentSearchSubscriptions.includes(urlSubscription) && !status) {
+    return res.status(200).json({
+      updatedUser: user,
+      message: "You are already subscribed to this search.",
+    });
+  } else if (
+    currentSearchSubscriptions.includes(urlSubscription) &&
+    status === "delete"
+  ) {
+    currentSearchSubscriptions = currentSearchSubscriptions.filter(
+      (subscription) => subscription !== urlSubscription
+    );
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        userSearchSubscription: currentSearchSubscriptions,
+      },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      updatedUser: updatedUser,
+      message: "You have successfully unsubscribed from this search.",
+    });
+  } else {
+    currentSearchSubscriptions.push(urlSubscription);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        userSearchSubscription: currentSearchSubscriptions,
+      },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      updatedUser: updatedUser,
+      message: "You have successfully subscribed to this search.",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -364,4 +412,5 @@ module.exports = {
   updateUserLikes,
   getUserLikesBasket,
   updateUserSubscribes,
+  updateUserSearchSubscribes,
 };
