@@ -3,6 +3,7 @@ const { Product } = require("../models/product");
 const { processedFiles } = require("../helpers");
 
 const { RequestError } = require("../helpers");
+const moment = require("moment");
 
 const addProductController = async (req, res) => {
   const { _id: owner } = req.user;
@@ -151,7 +152,7 @@ const getProductsController = async (req, res) => {
 // get User products
 const getUserProductsController = async (req, res) => {
   const { _id: userId } = req.user;
-  const page = req.query.page || 1;
+  const page = Number(req.query.page) || 1;
   const limit = 5;
 
   const count = await Product.countDocuments({ owner: userId });
@@ -173,14 +174,12 @@ const getUserProductsController = async (req, res) => {
 
 // get products by Query
 const getProductsQueryController = async (req, res) => {
-  const page = req.query.page || 1;
+  const page = Number(req.query.page) || 1;
   const searchQuery = req.query.searchQuery;
   const section = req.query.section;
   const category = req.query.category;
   const filterData = JSON.parse(req.query.filterData);
   const limit = 6;
-
-  console.log("searchQuery", searchQuery);
 
   const searchKeywords = searchQuery.toLowerCase().split(" ");
 
@@ -321,7 +320,7 @@ const getProductsQueryController = async (req, res) => {
 
 //get Product by Vip
 const getVipProductsController = async (req, res) => {
-  const page = req.query.page || 1; // Поточна сторінка
+  const page = Number(req.query.page) || 1; // Поточна сторінка
   const limit = 5; // Кількість карточок на сторінку
 
   const count = await Product.countDocuments({ vip: "Так" }); // Кількість всіх продуктів, що відповідають критерію
@@ -336,13 +335,13 @@ const getVipProductsController = async (req, res) => {
 
   res.status(200).json({
     products,
-    totalPages, // Додано загальну кількість сторінок у відповідь
+    totalPages,
   });
 };
 
 //get Product by Selector
 const getSelectorProductsController = async (req, res) => {
-  const page = req.query.page || 1;
+  const page = Number(req.query.page) || 1;
   const selector = req.query.selectorName || "New";
   const limit = 10;
   const skip = (page - 1) * limit;
