@@ -1,34 +1,46 @@
 const { User } = require("../models/user");
 const { Review } = require("../models/review");
+const { Order } = require("../models/order");
 const { RequestError } = require("../helpers");
 const mongoose = require("mongoose");
 const moment = require("moment-timezone");
 
 const addReviewController = async (req, res) => {
-  const { _id: clientId, username, userAvatar } = req.user;
-  const { orderId, sellerId, products, rating, feedback } = req.body;
+  const { _id: reviewOwner, username, userAvatar } = req.user;
+  const { orderId, sellerId, products, rating, feedback, feedbackType } =
+    req.body;
   const currentDate = moment().tz("Europe/Kiev").format("DD.MM.YYYY HH:mm");
-
+  
+  const order = await Order.findById(orderId);
+  
   const newReview = await Review.create({
-    sellerId,
+    sellerId: sellerId ? sellerId : order.sellerId,
     orderId,
+    customerId: order.client.customerId,
     products: products,
     reviewer: {
-      reviewerId: clientId,
+      reviewerId: reviewOwner,
       reviewerName: username ? username : "unknown",
       reviewerFoto: userAvatar ? userAvatar : "",
     },
     reviewDate: currentDate,
     rating,
     feedback,
+    feedbackType,
   });
-  const updatedUser = await User.findOneAndUpdate(
-    { _id: clientId },
+    
+  const updatedReviewOwner = await User.findOneAndUpdate(
+    { _id: reviewOwner },
     { $push: { userReviews: newReview._id } },
     { new: true }
   );
-  const updatedSeller = await User.findOneAndUpdate(
-    { _id: newReview.sellerId },
+  
+  const feedbackOwnerId =
+    feedbackType === "asSeller" ? newReview.customerId : newReview.sellerId;
+    
+  const updatedFeedbackOwner = await User.findOneAndUpdate(
+    // { _id: newReview.sellerId },
+    { _id: feedbackOwnerId },
     {
       $push: {
         userFeedback: { id: newReview._id, rating: newReview.rating },
@@ -37,7 +49,7 @@ const addReviewController = async (req, res) => {
     { new: true }
   );
 
-  const sellerFeedback = updatedSeller.userFeedback;
+  const sellerFeedback = updatedFeedbackOwner.userFeedback;
   const totalRating = sellerFeedback.reduce(
     (sum, feedback) => sum + feedback.rating,
     0
@@ -47,7 +59,8 @@ const addReviewController = async (req, res) => {
   const roundedAverageRating = averageRating.toFixed(2);
 
   await User.findOneAndUpdate(
-    { _id: newReview.sellerId },
+    // { _id: newReview.sellerId },
+    { _id: feedbackOwnerId },
     { rating: roundedAverageRating }
   );
 
@@ -71,7 +84,9 @@ const deleteReviewController = async (req, res) => {
   const { reviewId } = req.params;
   const reviewById = await Review.findById(reviewId);
   const ownerId = reviewById.reviewer.reviewerId;
-  const sellerId = reviewById.sellerId;
+  const feedbackType = reviewById.feedbackType;
+  const feedbackOwnerId =
+    feedbackType === "asSeller" ? reviewById.customerId : reviewById.sellerId;
   try {
     await Review.deleteOne({ _id: reviewId });
 
@@ -85,15 +100,15 @@ const deleteReviewController = async (req, res) => {
       throw new Error("Client not found");
     }
 
-    const updatedSeller = await User.findOneAndUpdate(
-      { _id: sellerId },
+    const updatedFeedbackOwner = await User.findOneAndUpdate(
+      { _id: feedbackOwnerId },
       { $pull: { userFeedback: { id: mongoose.Types.ObjectId(reviewId) } } },
       //   { userFeedback: []},
       { new: true }
     );
 
-    if (!updatedSeller) {
-      throw new Error("Seller not found");
+    if (!updatedFeedbackOwner) {
+      throw new Error("FeedbackOwner not found");
     }
 
     res.status(200).json({ message: "Review deleted" });
@@ -117,14 +132,35 @@ const getUserReviewsController = async (req, res) => {
 
 // get User feedback
 const getUserFeedbackController = async (req, res) => {
-  const { sellerId } = req.body;
-  const userFeedback = await Review.find({ sellerId: sellerId }).sort({
-    reviewDate: -1,
-  });
+  const { userId, feedbackType } = req.body;
 
-  res.status(200).json({
-    feedback: userFeedback,
-  });
+    let userFeedback = [];
+    if (feedbackType === "asSeller") {
+       userFeedback = await Review.find({
+         sellerId: userId,
+         feedbackType: "asCustomer",
+       }).sort({
+         reviewDate: -1,
+       });
+    }
+    if (feedbackType === "asCustomer") {
+      userFeedback = await Review.find({
+        customerId: userId,
+        feedbackType: "asSeller",
+      }).sort({
+        reviewDate: -1,
+      });
+    }
+    if (!feedbackType) {
+      userFeedback = await Review.find({
+        $or: [{ sellerId: userId }, { customerId: userId }],
+      }).sort({
+        reviewDate: -1,
+      });
+    }
+      res.status(200).json({
+        feedback: userFeedback,
+      });
 };
 
 const getReviewsController = async (req, res) => {
