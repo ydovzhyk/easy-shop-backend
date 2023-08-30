@@ -9,6 +9,10 @@ const reviewSchema = new Schema(
       type: Schema.Types.ObjectId,
       required: true,
     },
+    customerId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
     orderId: {
       type: Schema.Types.ObjectId,
       required: true,
@@ -40,6 +44,10 @@ const reviewSchema = new Schema(
       type: String,
       default: "",
     },
+    feedbackType: {
+      type: String,
+      default: "",
+    },
   },
   { minimize: false }
 );
@@ -54,6 +62,7 @@ const addReviewSchema = Joi.object({
   rating: Joi.number().required(),
   feedback: Joi.string().required(),
   orderId: Joi.string().required(),
+  feedbackType: Joi.string().required(),
 });
 
 const schemas = {
