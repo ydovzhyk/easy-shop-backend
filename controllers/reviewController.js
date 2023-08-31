@@ -154,6 +154,7 @@ const getUserFeedbackController = async (req, res) => {
     if (!feedbackType) {
       userFeedback = await Review.find({
         $or: [{ sellerId: userId }, { customerId: userId }],
+        "reviewer.reviewerId": { $ne: userId },
       }).sort({
         reviewDate: -1,
       });
