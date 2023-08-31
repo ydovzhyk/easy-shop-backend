@@ -353,17 +353,17 @@ const updateUserSubscribes = async (req, res, next) => {
 
 const updateUserSearchSubscribes = async (req, res, next) => {
   const user = req.user;
-  const { urlSubscription, status } = req.body;
+  const { urlSubscription, statusDelete } = req.body;
   let currentSearchSubscriptions = user.userSearchSubscription;
 
-  if (currentSearchSubscriptions.includes(urlSubscription) && !status) {
+  if (currentSearchSubscriptions.includes(urlSubscription) && !statusDelete) {
     return res.status(200).json({
       updatedUser: user,
       message: "You are already subscribed to this search.",
     });
   } else if (
     currentSearchSubscriptions.includes(urlSubscription) &&
-    status === "delete"
+    statusDelete === "delete"
   ) {
     currentSearchSubscriptions = currentSearchSubscriptions.filter(
       (subscription) => subscription !== urlSubscription

@@ -8,30 +8,57 @@ const moment = require("moment-timezone");
 const { RequestError, sendTechnicialMail } = require("../helpers/");
 
 const createDialogueController = async (req, res) => {
-  const { text, productId, productOwner, dialogueId } = req.body;
-
+  const { text, productId, productOwner, dialogueId, customerId } = req.body;
   const userId = req.user._id;
-
+  let isDialogue = null;
   const currentDate = moment().tz("Europe/Kiev").format("DD.MM.YYYY HH:mm");
 
-  const isDialogue = await Dialogue.findOne({
-    _id: dialogueId,
-    productId: productId,
-    $and: [
-      {
-        statusDialogue: {
-          $elemMatch: {
-            $or: [
-              { userOne: userId, status: true },
-              { userTwo: userId, status: true },
-            ],
+  if (dialogueId) {
+    isDialogue = await Dialogue.findOne({
+      _id: dialogueId,
+      productId: productId,
+      $and: [
+        {
+          statusDialogue: {
+            $elemMatch: {
+              $or: [
+                { userOne: userId, status: true },
+                { userTwo: userId, status: true },
+                { userOne: userId, status: false },
+                { userTwo: userId, status: false },
+              ],
+            },
           },
         },
-      },
-    ],
-  });
+      ],
+    });
+  }
 
-  if (!isDialogue) {
+  if (customerId && !dialogueId) {
+    isDialogue = await Dialogue.findOne({
+      productId: productId,
+      productOwner: userId,
+      userId: customerId,
+      $and: [
+        {
+          statusDialogue: {
+            $elemMatch: {
+              $or: [
+                { userOne: userId, status: true },
+                { userTwo: customerId, status: true },
+                { userOne: userId, status: false },
+                { userTwo: customerId, status: false },
+              ],
+            },
+          },
+        },
+      ],
+    });
+  }
+
+  console.log("Отримали діалог при створенні повідомлення", isDialogue);
+
+  if (!isDialogue && !customerId) {
     const isProductOwner = await User.findById(productOwner);
     const newDialogue = await Dialogue.create({
       messageArray: { text: text, date: currentDate, textOwner: userId },
@@ -71,7 +98,51 @@ const createDialogueController = async (req, res) => {
       user: updatedUser,
       userDialogue: newDialogue,
     });
-  } else {
+  }
+  // створюємо діалог на сторінці куплених товарів
+  if (!isDialogue && customerId) {
+    const otherUser = await User.findById(customerId);
+    const newDialogue = await Dialogue.create({
+      messageArray: { text: text, date: currentDate, textOwner: userId },
+      userId: mongoose.Types.ObjectId(customerId),
+      userAvatar: otherUser.userAvatar,
+      productId,
+      productOwner: userId,
+      productOwnerAvatar: req.user.userAvatar,
+      statusDialogue: [
+        { userOne: userId, status: true },
+        { userTwo: mongoose.Types.ObjectId(customerId), status: true },
+      ],
+      newMessages: [
+        {
+          userReceiver: mongoose.Types.ObjectId(customerId),
+          message: text,
+          date: currentDate,
+        },
+      ],
+    });
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { userDialogue: newDialogue._id } },
+      { new: true }
+    );
+
+    await User.findOneAndUpdate(
+      { _id: customerId },
+      {
+        $push: { userDialogue: newDialogue._id },
+        $inc: { newMessage: 1 },
+      }
+    );
+
+    res.status(201).send({
+      user: updatedUser,
+      userDialogue: newDialogue,
+    });
+  }
+
+  if (isDialogue) {
     let userReceiver = null;
     const userOne = isDialogue.userId;
     const userTwo = isDialogue.productOwner;
@@ -119,12 +190,12 @@ const createDialogueController = async (req, res) => {
 };
 
 const getDialogueController = async (req, res) => {
-  const { productId, dialogueId } = req.body;
+  const { productId, dialogueId, customerId } = req.body;
   const userId = req.user._id;
 
   let reqDialogue = [];
-
-  if (productId && !dialogueId) {
+  //перевіряємо діалог на сторінці продукту
+  if (productId && !dialogueId && !customerId) {
     const product = await Product.findOne({ _id: productId });
     const productOwner = product.owner;
     reqDialogue = await Dialogue.findOne({
@@ -145,7 +216,31 @@ const getDialogueController = async (req, res) => {
         },
       ],
     });
-  } else {
+  }
+  // перевіряємо діалог на сторінці куплиних товарів
+  if (productId && !dialogueId && customerId) {
+    reqDialogue = await Dialogue.findOne({
+      productId: productId,
+      productOwner: userId,
+      userId: customerId,
+      $and: [
+        {
+          statusDialogue: {
+            $elemMatch: {
+              $or: [
+                { userOne: userId, status: true },
+                { userTwo: customerId, status: true },
+                { userOne: userId, status: false },
+                { userTwo: customerId, status: false },
+              ],
+            },
+          },
+        },
+      ],
+    });
+  }
+  // перевіряємо діалог на сторінці повідомлень
+  if (dialogueId && !customerId) {
     reqDialogue = await Dialogue.findOne({
       _id: dialogueId,
       $and: [
