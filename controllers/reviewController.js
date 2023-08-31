@@ -43,7 +43,11 @@ const addReviewController = async (req, res) => {
     { _id: feedbackOwnerId },
     {
       $push: {
-        userFeedback: { id: newReview._id, rating: newReview.rating },
+        userFeedback: {
+          id: newReview._id,
+          rating: newReview.rating,
+          feedbackType,
+        },
       },
     },
     { new: true }
@@ -154,6 +158,7 @@ const getUserFeedbackController = async (req, res) => {
     if (!feedbackType) {
       userFeedback = await Review.find({
         $or: [{ sellerId: userId }, { customerId: userId }],
+        "reviewer.reviewerId": { $ne: userId },
       }).sort({
         reviewDate: -1,
       });
