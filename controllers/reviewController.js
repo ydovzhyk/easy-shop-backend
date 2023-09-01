@@ -173,6 +173,27 @@ const getReviewsController = async (req, res) => {
   res.status(200).json(reviews);
 };
 
+const updateReviewController = async (req, res) => {
+  const { reviewId, rating, feedback } = req.body;
+
+  const reviewById = await Review.findById(reviewId);
+
+  const updatedReview = await Review.findOneAndUpdate(
+    { _id: reviewId },
+    {
+      rating: rating ? rating : reviewById.rating,
+      feedback: feedback ? feedback : reviewById.feedback,
+    },
+    { new: true }
+  );
+
+  res.status(200).json({
+    message: "Review edit successfully",
+    updatedReview,
+    code: 200,
+  });
+};
+
 module.exports = {
   addReviewController,
   getReviewByIdController,
@@ -180,4 +201,5 @@ module.exports = {
   getUserReviewsController,
   getUserFeedbackController,
   getReviewsController,
+  updateReviewController,
 };
