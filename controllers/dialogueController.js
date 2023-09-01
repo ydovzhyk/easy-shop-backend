@@ -8,7 +8,8 @@ const moment = require("moment-timezone");
 const { RequestError, sendTechnicialMail } = require("../helpers/");
 
 const createDialogueController = async (req, res) => {
-  const { text, productId, productOwner, dialogueId, customerId } = req.body;
+  const { text, productId, productOwner, dialogueId, customerId, sellerId } =
+    req.body;
   const userId = req.user._id;
   let isDialogue = null;
   const currentDate = moment().tz("Europe/Kiev").format("DD.MM.YYYY HH:mm");
@@ -56,9 +57,29 @@ const createDialogueController = async (req, res) => {
     });
   }
 
-  console.log("Отримали діалог при створенні повідомлення", isDialogue);
+  if (sellerId && !dialogueId) {
+    isDialogue = await Dialogue.findOne({
+      productId: productId,
+      productOwner: sellerId,
+      userId: userId,
+      $and: [
+        {
+          statusDialogue: {
+            $elemMatch: {
+              $or: [
+                { userOne: sellerId, status: true },
+                { userTwo: userId, status: true },
+                { userOne: sellerId, status: false },
+                { userTwo: userId, status: false },
+              ],
+            },
+          },
+        },
+      ],
+    });
+  }
 
-  if (!isDialogue && !customerId) {
+  if (!isDialogue && !customerId && !sellerId) {
     const isProductOwner = await User.findById(productOwner);
     const newDialogue = await Dialogue.create({
       messageArray: { text: text, date: currentDate, textOwner: userId },
@@ -99,7 +120,7 @@ const createDialogueController = async (req, res) => {
       userDialogue: newDialogue,
     });
   }
-  // створюємо діалог на сторінці куплених товарів
+  // створюємо діалог на сторінці проданих товарів
   if (!isDialogue && customerId) {
     const otherUser = await User.findById(customerId);
     const newDialogue = await Dialogue.create({
@@ -130,6 +151,49 @@ const createDialogueController = async (req, res) => {
 
     await User.findOneAndUpdate(
       { _id: customerId },
+      {
+        $push: { userDialogue: newDialogue._id },
+        $inc: { newMessage: 1 },
+      }
+    );
+
+    res.status(201).send({
+      user: updatedUser,
+      userDialogue: newDialogue,
+    });
+  }
+
+  // створюємо діалог на сторінці куплених товарів
+  if (!isDialogue && sellerId) {
+    const otherUser = await User.findById(sellerId);
+    const newDialogue = await Dialogue.create({
+      messageArray: { text: text, date: currentDate, textOwner: userId },
+      userId: userId,
+      userAvatar: req.user.userAvatar,
+      productId,
+      productOwner: mongoose.Types.ObjectId(sellerId),
+      productOwnerAvatar: otherUser.userAvatar,
+      statusDialogue: [
+        { userOne: mongoose.Types.ObjectId(sellerId), status: true },
+        { userTwo: userId, status: true },
+      ],
+      newMessages: [
+        {
+          userReceiver: mongoose.Types.ObjectId(sellerId),
+          message: text,
+          date: currentDate,
+        },
+      ],
+    });
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { userDialogue: newDialogue._id } },
+      { new: true }
+    );
+
+    await User.findOneAndUpdate(
+      { _id: sellerId },
       {
         $push: { userDialogue: newDialogue._id },
         $inc: { newMessage: 1 },
