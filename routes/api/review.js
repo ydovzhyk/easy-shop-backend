@@ -38,6 +38,13 @@ router.post("/user-feedback",
     ctrlWrapper(ctrl.getUserFeedbackController)
 );
 
+router.post(
+  "/update",
+  authorize,
+  validateBody(schemas.updateReviewSchema),
+  ctrlWrapper(ctrl.updateReviewController)
+);
+
 router.get("/", ctrlWrapper(ctrl.getReviewsController));
 
 module.exports = router;

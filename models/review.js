@@ -65,8 +65,15 @@ const addReviewSchema = Joi.object({
   feedbackType: Joi.string().required(),
 });
 
+const updateReviewSchema = Joi.object({
+  rating: Joi.number().required(),
+  feedback: Joi.string().required(),
+  reviewId: Joi.string().required(),
+});
+
 const schemas = {
   addReviewSchema,
+  updateReviewSchema,
 };
 
 module.exports = {
