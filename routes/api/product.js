@@ -63,7 +63,7 @@ router.get(
 
 router.get(
   "/otheruser/:userId",
-  authorize,
+  // authorize,
   isValidId,
   ctrlWrapper(ctrl.getProductOtherUserController)
 );
