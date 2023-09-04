@@ -34,7 +34,7 @@ router.post(
 
 // get user feedback
 router.post("/user-feedback",
-    authorize,
+    // authorize,
     ctrlWrapper(ctrl.getUserFeedbackController)
 );
 
