@@ -2,10 +2,7 @@ const express = require("express");
 const { ctrlWrapper } = require("../../helpers");
 const ctrl = require("../../controllers/orderController");
 
-const {
-  validateBody,
-  authorize,
-} = require("../../middlewares");
+const { validateBody, authorize } = require("../../middlewares");
 
 const { schemas } = require("../../models/order");
 
@@ -28,6 +25,7 @@ router.post(
 );
 
 router.get("/", ctrlWrapper(ctrl.getOrdersController));
+
 router.get("/:orderId", ctrlWrapper(ctrl.getOrderByIdController));
 
 // delete order by id

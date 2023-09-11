@@ -10,20 +10,24 @@ const {
 } = require("../../middlewares");
 const { schemas } = require("../../models/user");
 const router = express.Router();
+
 // signup
 router.post(
   "/register",
   validateBody(schemas.registerSchema),
   ctrlWrapper(ctrl.register)
 );
+
 // login
 router.post(
   "/login",
   validateBody(schemas.loginSchema),
   ctrlWrapper(ctrl.login)
 );
+
 // logout
 router.post("/logout", authorize, ctrlWrapper(ctrl.logout));
+
 // delete user
 router.delete(
   "/:userId",
@@ -31,6 +35,7 @@ router.delete(
   isValidId,
   ctrlWrapper(ctrl.deleteUserController)
 );
+
 // refresh user
 router.post(
   "/refresh",
@@ -38,8 +43,10 @@ router.post(
   validateBody(schemas.refreshTokenSchema),
   ctrlWrapper(ctrl.refresh)
 );
+
 // get current user
 router.post("/current", authorize, ctrlWrapper(ctrl.getUserController));
+
 // update user settings
 router.post(
   "/update/settings",
@@ -51,21 +58,16 @@ router.post(
 router.post(
   "/basket",
   authorize,
-  // validateBody(schemas.updateUserSettingsSchema),
+  validateBody(schemas.updateUserBasketSchema),
   ctrlWrapper(ctrl.updateUserBasket)
 );
 
-router.post(
-  "/likes",
-  authorize,
-  // validateBody(schemas.updateUserSettingsSchema),
-  ctrlWrapper(ctrl.updateUserLikes)
-);
+router.post("/likes", authorize, isValidId, ctrlWrapper(ctrl.updateUserLikes));
 
 router.post(
   "/info",
   authorize,
-  // validateBody(schemas.updateUserSettingsSchema),
+  validateBody(schemas.userLikesBasketSchema),
   ctrlWrapper(ctrl.getUserLikesBasket)
 );
 
@@ -79,7 +81,7 @@ router.post(
 router.post(
   "/subscribes/search",
   authorize,
-  // validateBody(schemas.updateUserSettingsSchema),
+  validateBody(schemas.updateUserSearchSubscribesSchema),
   ctrlWrapper(ctrl.updateUserSearchSubscribes)
 );
 
