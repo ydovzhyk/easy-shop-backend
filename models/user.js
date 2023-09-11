@@ -145,12 +145,36 @@ const updateUserSettingsSchema = Joi.object({
   about: Joi.alternatives().try(Joi.string().allow(""), Joi.object()),
 });
 
+const updateUserSearchSubscribesSchema = Joi.object({
+  urlSubscription: Joi.alternatives()
+    .try(Joi.string().allow(""), Joi.object())
+    .required(),
+  statusDelete: Joi.boolean().allow(null).optional(),
+});
+
+const userLikesBasketSchema = Joi.object({
+  currentPage: Joi.number().required(),
+});
+
+const updateUserBasketSchema = Joi.object({
+  productId: Joi.string().pattern(new RegExp("^[0-9a-fA-F]{24}$")),
+  selectedSizes: Joi.array().required(),
+});
+
+const userSubscriptionsSchema = Joi.object({
+  currentPage: Joi.number().required(),
+});
+
 const schemas = {
   registerSchema,
   loginSchema,
   verificationSchema,
   refreshTokenSchema,
   updateUserSettingsSchema,
+  updateUserSearchSubscribesSchema,
+  userLikesBasketSchema,
+  updateUserBasketSchema,
+  userSubscriptionsSchema,
 };
 
 module.exports = {

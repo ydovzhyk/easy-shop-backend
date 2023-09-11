@@ -17,26 +17,34 @@ router.post(
   "/add",
   upload.array("files"),
   authorize,
+  // validateBody(schemas.addProductSchema),
   ctrlWrapper(ctrl.addProductController)
 );
 
-// addProduct
+// update Product
 router.post(
   "/update",
   upload.array("files"),
   authorize,
+  // validateBody(schemas.updateProductSchema),
   ctrlWrapper(ctrl.updateProductController)
 );
 
+// get all Products
 router.get("/", ctrlWrapper(ctrl.getProductsController));
 
 //get products by Query
-router.get("/search", ctrlWrapper(ctrl.getProductsQueryController));
+router.get(
+  "/search",
+  validateBody(schemas.getProductsQuerySchema),
+  ctrlWrapper(ctrl.getProductsQueryController)
+);
 
 // get user products
 router.get(
   "/user-products",
   authorize,
+  validateBody(schemas.getUserProductsSchema),
   ctrlWrapper(ctrl.getUserProductsController)
 );
 
@@ -44,7 +52,11 @@ router.get(
 router.get("/vip", ctrlWrapper(ctrl.getVipProductsController));
 
 // get products by selector
-router.get("/selector", ctrlWrapper(ctrl.getSelectorProductsController));
+router.get(
+  "/selector",
+  validateBody(schemas.getSelectorProductsSchema),
+  ctrlWrapper(ctrl.getSelectorProductsController)
+);
 
 // delete product by id
 router.delete(
@@ -54,10 +66,16 @@ router.delete(
   ctrlWrapper(ctrl.deleteProductController)
 );
 
-router.get("/:productId", ctrlWrapper(ctrl.getProductByIdController));
+router.get(
+  "/:productId",
+  isValidId,
+  ctrlWrapper(ctrl.getProductByIdController)
+);
 
 router.get(
   "/basket/:ownerId",
+  authorize,
+  isValidId,
   ctrlWrapper(ctrl.getProductFromBasketController)
 );
 

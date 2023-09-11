@@ -3,7 +3,11 @@ const { RequestError } = require("../helpers");
 
 const isValidId = (req, res, next) => {
   const productId = req.params.productId || req.body.productId;
-  const userId = req.params.userId || req.body.userId;
+  const userId =
+    req.params.userId ||
+    req.body.userId ||
+    req.body.userSubscriptionId ||
+    req.params.ownerId;
 
   try {
     const objectId = isValidObjectId(productId) ? productId : userId;

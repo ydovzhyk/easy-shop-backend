@@ -3,6 +3,8 @@ const { Schema, model } = require("mongoose");
 
 const { handleSaveErrors } = require("../helpers");
 
+const validSelectors = ["new", "advice", "sale"];
+
 const productSchema = new Schema(
   {
     nameProduct: {
@@ -98,32 +100,57 @@ const addProductSchema = Joi.object({
   brendName: Joi.string().required(),
   condition: Joi.string().required(),
   section: Joi.string().required(),
-  category: Joi.string().required(),
-  quantity: Joi.number().required(),
-  date: Joi.date().required(),
-  description: Joi.string().required(),
-  keyWords: Joi.string().required(),
   vip: Joi.string().required(),
-  size: Joi.array()
-    .items(
-      Joi.object({
-        name: Joi.string().required(),
-        value: Joi.string().required(),
-      })
-    )
-    .required(),
-  file: Joi.string().uri().required(),
-  files: Joi.array().items(Joi.string()).required(),
-  price: Joi.number().required(),
-  owner: Joi.string().required(),
+  quantity: Joi.number().required(),
+  keyWords: Joi.string().required(),
+  size: Joi.array().required(),
+  category: Joi.string().required(),
   mainFileName: Joi.string().required(),
+  description: Joi.string().required(),
+  price: Joi.number().required(),
+  date: Joi.string().required(),
 });
 
-const deleteProductSchema = Joi.object({});
+const updateProductSchema = Joi.object({
+  nameProduct: Joi.string().optional(),
+  brendName: Joi.string().optional(),
+  condition: Joi.string().optional(),
+  section: Joi.string().optional(),
+  vip: Joi.string().optional(),
+  quantity: Joi.string().optional(),
+  keyWords: Joi.string().optional(),
+  size: Joi.array().optional(),
+  category: Joi.string().optional(),
+  mainFileName: Joi.string().optional(),
+  description: Joi.string().optional(),
+  price: Joi.string().optional(),
+  date: Joi.string().optional(),
+});
+
+const getUserProductsSchema = Joi.object({
+  page: Joi.number().integer().min(1),
+});
+
+const getProductsQuerySchema = Joi.object({
+  page: Joi.number().integer().min(1),
+  searchQuery: Joi.string().optional(),
+  section: Joi.string().optional(),
+  category: Joi.string().optional(),
+  filterData: Joi.array().optional(),
+});
+
+const getSelectorProductsSchema = Joi.object({
+  page: Joi.number().integer().min(1),
+  selectorName: Joi.string().valid(...validSelectors),
+});
 
 const schemas = {
   addProductSchema,
-  deleteProductSchema,
+  updateProductSchema,
+  addProductSchema,
+  getUserProductsSchema,
+  getProductsQuerySchema,
+  getSelectorProductsSchema,
 };
 
 module.exports = {
