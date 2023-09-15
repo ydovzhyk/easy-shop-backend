@@ -2,7 +2,12 @@ const { isValidObjectId } = require("mongoose");
 const { RequestError } = require("../helpers");
 
 const isValidId = (req, res, next) => {
-  const productId = req.params.productId || req.body.productId;
+  const productId =
+    req.params.productId ||
+    req.body.productId ||
+    req.params.reviewId ||
+    req.params.orderId ||
+    req.body.dialogueId;
   const userId =
     req.params.userId ||
     req.body.userId ||

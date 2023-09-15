@@ -24,7 +24,9 @@ const authenticateRefresh = async (req, res, next) => {
       return res.status(404).send({ message: "Invalid user" });
     }
     if (!sessionReq || !sessionUser) {
-      return res.status(404).send({ message: "Invalid session" });
+      return res.status(404).send({
+        message: "Invalid sessionSession timed out, please login again",
+      });
     }
     req.user = user;
     req.session = sessionReq;

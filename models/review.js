@@ -3,6 +3,8 @@ const { Schema, model } = require("mongoose");
 
 const { handleSaveErrors } = require("../helpers");
 
+const validType = ["asSeller", "asCustomer"];
+
 const reviewSchema = new Schema(
   {
     sellerId: {
@@ -71,9 +73,17 @@ const updateReviewSchema = Joi.object({
   reviewId: Joi.string().required(),
 });
 
+const getUserFeedbackSchema = Joi.object({
+  userId: Joi.string().pattern(new RegExp("^[0-9a-fA-F]{24}$")),
+  feedbackType: Joi.string()
+    .valid(...validType)
+    .optional(),
+});
+
 const schemas = {
   addReviewSchema,
   updateReviewSchema,
+  getUserFeedbackSchema,
 };
 
 module.exports = {

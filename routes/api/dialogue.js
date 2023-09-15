@@ -3,49 +3,48 @@ const { ctrlWrapper } = require("../../helpers");
 const ctrl = require("../../controllers/dialogueController");
 
 const { validateBody, isValidId, authorize } = require("../../middlewares");
-const { schemas } = require("../../models/user");
+const { schemas } = require("../../models/dialogue");
 const router = express.Router();
 
-// create new dialogue
 router.post(
   "/create",
   authorize,
-  //   validateBody(schemas.verificationSchema),
+  validateBody(schemas.createDialogueSchema),
   ctrlWrapper(ctrl.createDialogueController)
 );
 
 router.post(
   "/get",
   authorize,
-  //   validateBody(schemas.verificationSchema),
+  validateBody(schemas.getDialogueSchema),
   ctrlWrapper(ctrl.getDialogueController)
 );
 
 router.post(
   "/getData",
   authorize,
-  //   validateBody(schemas.verificationSchema),
+  validateBody(schemas.getAllDialoguesSchema),
   ctrlWrapper(ctrl.getAllDialoguesController)
 );
 
 router.post(
   "/delete",
   authorize,
-  //   validateBody(schemas.verificationSchema),
+  isValidId,
   ctrlWrapper(ctrl.deleteDialogueController)
 );
 
 router.post(
   "/deleteNewMessage",
   authorize,
-  //   validateBody(schemas.verificationSchema),
+  validateBody(schemas.deleteDialogueNewMessageSchema),
   ctrlWrapper(ctrl.deleteDialogueNewMessageController)
 );
 
 router.post(
   "/order",
   authorize,
-  //   validateBody(schemas.verificationSchema),
+  validateBody(schemas.orderDialogueSchema),
   ctrlWrapper(ctrl.orderDialogueController)
 );
 

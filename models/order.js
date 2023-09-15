@@ -2,6 +2,7 @@ const Joi = require("joi");
 const { Schema, model } = require("mongoose");
 
 const { handleSaveErrors } = require("../helpers");
+const selectorsType = ["all", "new", "confirmed", "canceled"];
 
 const orderSchema = new Schema(
   {
@@ -95,10 +96,28 @@ const updateOrderSchema = Joi.object({
   customerTel: Joi.string().required(),
 });
 
+const getUserOrdersSchema = Joi.object({
+  page: Joi.number().integer().min(1),
+  selectorName: Joi.string().valid(...selectorsType),
+});
+
+const updateOrderStatusSchema = Joi.object({
+  orderId: Joi.string().pattern(new RegExp("^[0-9a-fA-F]{24}$")).required(),
+  confirmed: Joi.boolean().required(),
+  statusNew: Joi.boolean().required(),
+});
+
+const getUserSalesSchemas = Joi.object({
+  page: Joi.number().integer().min(1),
+  selectorName: Joi.string().valid(...selectorsType),
+});
 
 const schemas = {
   addOrderSchema,
   updateOrderSchema,
+  getUserOrdersSchema,
+  updateOrderStatusSchema,
+  getUserSalesSchemas,
 };
 
 module.exports = {
