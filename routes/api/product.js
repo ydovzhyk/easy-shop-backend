@@ -12,6 +12,7 @@ const {
 const { schemas } = require("../../models/product");
 
 const router = express.Router();
+
 // addProduct
 router.post(
   "/add",

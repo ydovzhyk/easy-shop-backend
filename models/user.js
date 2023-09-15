@@ -158,7 +158,7 @@ const userLikesBasketSchema = Joi.object({
 
 const updateUserBasketSchema = Joi.object({
   productId: Joi.string().pattern(new RegExp("^[0-9a-fA-F]{24}$")),
-  selectedSizes: Joi.array().required(),
+  selectedSizes: Joi.array().optional(),
 });
 
 const userSubscriptionsSchema = Joi.object({

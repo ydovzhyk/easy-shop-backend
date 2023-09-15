@@ -2,7 +2,7 @@ const express = require("express");
 const { ctrlWrapper } = require("../../helpers");
 const ctrl = require("../../controllers/reviewController");
 
-const { validateBody, authorize } = require("../../middlewares");
+const { validateBody, authorize, isValidId } = require("../../middlewares");
 
 const { schemas } = require("../../models/review");
 
@@ -16,12 +16,13 @@ router.post(
   ctrlWrapper(ctrl.addReviewController)
 );
 
-router.get("/:reviewId", ctrlWrapper(ctrl.getReviewByIdController));
+router.get("/:reviewId", isValidId, ctrlWrapper(ctrl.getReviewByIdController));
 
 // delete Review by id
 router.delete(
   "/delete/:reviewId",
   authorize,
+  isValidId,
   ctrlWrapper(ctrl.deleteReviewController)
 );
 
@@ -29,15 +30,18 @@ router.delete(
 router.post(
   "/user-reviews",
   authorize,
+  isValidId,
   ctrlWrapper(ctrl.getUserReviewsController)
 );
 
 // get user feedback
-router.post("/user-feedback",
-    // authorize,
-    ctrlWrapper(ctrl.getUserFeedbackController)
+router.post(
+  "/user-feedback",
+  validateBody(schemas.getUserFeedbackSchema),
+  ctrlWrapper(ctrl.getUserFeedbackController)
 );
 
+// update user feedback
 router.post(
   "/update",
   authorize,
@@ -45,6 +49,7 @@ router.post(
   ctrlWrapper(ctrl.updateReviewController)
 );
 
+// get all reviews
 router.get("/", ctrlWrapper(ctrl.getReviewsController));
 
 module.exports = router;

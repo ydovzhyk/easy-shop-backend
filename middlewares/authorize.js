@@ -21,7 +21,9 @@ const authorize = async (req, res, next) => {
       return res.status(404).send({ message: "Invalid user" });
     }
     if (!session) {
-      return res.status(404).send({ message: "Invalid session" });
+      return res
+        .status(404)
+        .send({ message: "Session timed out, please login again" });
     }
     req.user = user;
     req.session = session;

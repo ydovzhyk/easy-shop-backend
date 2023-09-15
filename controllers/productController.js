@@ -4,6 +4,7 @@ const { Product } = require("../models/product");
 const { processedFiles } = require("../helpers");
 const { RequestError } = require("../helpers");
 
+//add Product
 const addProductController = async (req, res, next) => {
   try {
     const { _id: owner } = req.user;
@@ -57,6 +58,7 @@ const addProductController = async (req, res, next) => {
   }
 };
 
+//update Product data
 const updateProductController = async (req, res, next) => {
   try {
     const {
@@ -128,6 +130,7 @@ const updateProductController = async (req, res, next) => {
   }
 };
 
+//delete Product
 const deleteProductController = async (req, res, next) => {
   try {
     const { productId } = req.params;
@@ -155,6 +158,7 @@ const deleteProductController = async (req, res, next) => {
   }
 };
 
+//get all Product
 const getProductsController = async (req, res, next) => {
   try {
     const products = await Product.find();
@@ -164,7 +168,7 @@ const getProductsController = async (req, res, next) => {
   }
 };
 
-// get User products
+//get User products
 const getUserProductsController = async (req, res, next) => {
   try {
     const { _id: userId } = req.user;
@@ -191,7 +195,7 @@ const getUserProductsController = async (req, res, next) => {
   }
 };
 
-// get products by Query
+//get products by Query
 const getProductsQueryController = async (req, res, next) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -450,7 +454,6 @@ const getProductByIdController = async (req, res, next) => {
 
 //get Product from Basket
 const getProductFromBasketController = async (req, res, next) => {
-  console.log("Тут працює");
   try {
     const { ownerId } = req.params;
     const user = await User.findById(ownerId);
