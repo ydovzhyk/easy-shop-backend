@@ -21,10 +21,7 @@ const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(logger(formatsLogger));
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://ydovzhyk.github.io/easy-shop/",
-];
+const allowedOrigins = ["http://localhost:3000", "https://ydovzhyk.github.io"];
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
