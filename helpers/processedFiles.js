@@ -65,7 +65,9 @@ const uploadFileToDrive = async (file, auth) => {
 
     // create direct Link to image
     const fileId = data.id;
-    const imageLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
+    // const imageLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
+    const imageLink = `https://drive.usercontent.google.com/download?id=${fileId}&export=view&authuser=0`;
+    https://drive.usercontent.google.com/download?id=10SBPs0f-sYbnWOqTlM6sI9wqxrMqjq__&export=view&authuser=0
     // const imageLink = `https://drive.google.com/uc?id=${fileId}`;
     https: return imageLink;
   } catch (error) {
