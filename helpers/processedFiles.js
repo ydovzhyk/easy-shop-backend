@@ -43,8 +43,6 @@ const uploadFileToDrive = async (file, auth) => {
     folderId = null;
   }
 
-  console.log("folderId", folderId);
-
   // upload file to Google Drive
   try {
     const fileName = `${uuidv4()}_${file.originalname}`;
