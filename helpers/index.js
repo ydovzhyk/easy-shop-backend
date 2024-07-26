@@ -4,6 +4,7 @@ const handleSaveErrors = require("./handleSaveErrors");
 const processedFiles = require("./processedFiles");
 const sendMail = require("./sendMail");
 const sendTechnicialMail = require("./sendTechnicialMail");
+const createLink = require("./createLink");
 
 module.exports = {
   RequestError,
@@ -12,4 +13,5 @@ module.exports = {
   processedFiles,
   sendMail,
   sendTechnicialMail,
+  createLink,
 };

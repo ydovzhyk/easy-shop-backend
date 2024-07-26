@@ -1,7 +1,7 @@
 const { User } = require("../models/user");
 const { Product } = require("../models/product");
 
-const { processedFiles } = require("../helpers");
+const { processedFiles, createLink } = require("../helpers");
 const { RequestError } = require("../helpers");
 
 //add Product
@@ -25,7 +25,8 @@ const addProductController = async (req, res, next) => {
     } = req.body;
     const files = req.files;
 
-    const filesUrls = await processedFiles(files, mainFileName);
+    // const filesUrls = await processedFiles(files, mainFileName);
+    const filesUrls = await createLink(files, mainFileName);
 
     const newProduct = await Product.create({
       nameProduct: nameProduct,
@@ -106,15 +107,18 @@ const updateProductController = async (req, res, next) => {
       mainUrl = mainPhotoUrl;
       additionalUrl = JSON.parse(additionalPhotoUrl);
     } else if (mainFileName && files.length === 1) {
-      const filesUrls = await processedFiles(files, mainFileName);
+      // const filesUrls = await processedFiles(files, mainFileName);
+      const filesUrls = await createLink(files, mainFileName);
       mainUrl = filesUrls.mainFileURL;
       additionalUrl = JSON.parse(additionalPhotoUrl);
     } else if (!mainFileName && files.length > 0) {
-      const filesUrls = await processedFiles(files, mainFileName);
+      // const filesUrls = await processedFiles(files, mainFileName);
+      const filesUrls = await createLink(files, mainFileName);
       mainUrl = mainPhotoUrl;
       additionalUrl = filesUrls.additionalFilesURLs;
     } else {
-      const filesUrls = await processedFiles(files, mainFileName);
+      // const filesUrls = await processedFiles(files, mainFileName);
+      const filesUrls = await createLink(files, mainFileName);
       mainUrl = filesUrls.mainFileURL;
       additionalUrl = filesUrls.additionalFilesURLs;
     }
