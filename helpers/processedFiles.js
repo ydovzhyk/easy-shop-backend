@@ -107,6 +107,7 @@ const processedFiles = async (files, mainFileName) => {
       }
     }
   }
+
   return { mainFileURL, additionalFilesURLs };
 };
 
