@@ -73,6 +73,7 @@ const createLink = async (files, mainFileName) => {
     });
   }
 
+  console.log(mainFileURL, additionalFilesURLs);
   return { mainFileURL, additionalFilesURLs };
 };
 

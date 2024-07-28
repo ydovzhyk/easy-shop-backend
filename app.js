@@ -21,19 +21,22 @@ const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(logger(formatsLogger));
 
-// const allowedOrigins = ["http://localhost:3000", "https://ydovzhyk.github.io"];
-// const corsOptions = {
-//   origin: function (origin, callback) {
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error("Not allowed by CORS"));
-//     }
-//   },
-// };
-// app.use(cors(corsOptions));
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://ydovzhyk.github.io",
+  "https://easy-shop-team.netlify.app",
+];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+app.use(cors(corsOptions));
 // app.use(cors());
-app.use(cors({ credentials: false, origin: "*" }));
 
 app.use(express.json());
 app.use("/static", express.static("public")); // For access a file
