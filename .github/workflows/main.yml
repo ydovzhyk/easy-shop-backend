@@ -44,23 +44,6 @@ jobs:
           echo "EMAIL=${{ secrets.EMAIL }}" >> .env
         working-directory: .
 
-      - name: Create adminsdk.json file
-        run: |
-          echo '{' > helpers/adminsdk.json
-          echo '  "type": "service_account",' >> helpers/adminsdk.json
-          echo '  "project_id": "apartment-rent-yd",' >> helpers/adminsdk.json
-          echo '  "private_key_id": "${{ secrets.PRIVATE_KEY_ID }}",' >> helpers/adminsdk.json
-          echo '  "private_key": "${{ secrets.PRIVATE_KEY }}",' >> helpers/adminsdk.json
-          echo '  "client_email": "firebase-adminsdk-y9fjl@apartment-rent-yd.iam.gserviceaccount.com",' >> helpers/adminsdk.json
-          echo '  "client_id": "118316312367783203782",' >> helpers/adminsdk.json
-          echo '  "auth_uri": "https://accounts.google.com/o/oauth2/auth",' >> helpers/adminsdk.json
-          echo '  "token_uri": "https://oauth2.googleapis.com/token",' >> helpers/adminsdk.json
-          echo '  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",' >> helpers/adminsdk.json
-          echo '  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-y9fjl%40apartment-rent-yd.iam.gserviceaccount.com",' >> helpers/adminsdk.json
-          echo '  "universe_domain": "googleapis.com"' >> helpers/adminsdk.json
-          echo '}' >> helpers/adminsdk.json
-        working-directory: .
-
       - name: Build Docker image
         run: docker build -t yuriydovzhyk/easy-shop-backend:latest .
 
