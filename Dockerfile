@@ -1,5 +1,5 @@
-# Використовуємо node: як базовий образ
-FROM node
+# Node 22: на Node 25+ прибрано SlowBuffer, і старий jwa (firebase/jsonwebtoken) падає на старті
+FROM node:22
 
 # Встановлюємо робочу директорію
 WORKDIR /app
