@@ -8,6 +8,7 @@ const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, BASE_URL_HEROKU, BASE_URL } =
 const { User } = require("../models/user");
 
 let callbackURL;
+
 if (process.env.NODE_ENV === "production") {
   callbackURL = `${BASE_URL_HEROKU}/google/callback`;
 } else {
