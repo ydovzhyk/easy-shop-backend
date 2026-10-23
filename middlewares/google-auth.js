@@ -21,6 +21,39 @@ const googleParams = {
   passReqToCallback: true,
 };
 
+const { getRequestReferer } = require("../helpers/frontendRedirect");
+
+const googleUsername = profile => {
+  const emailName = profile.email ? profile.email.split("@")[0] : "";
+  const givenName = profile.name && profile.name.givenName;
+  const raw =
+    profile.given_name ||
+    givenName ||
+    profile.displayName ||
+    emailName ||
+    "user";
+  const username = String(raw).trim().replace(/\s+/g, " ").slice(0, 25);
+  return username.length >= 2 ? username : `${username}user`.slice(0, 25);
+};
+
+const profileEmail = profile => {
+  if (profile.email) return profile.email;
+  if (profile._json && profile._json.email) return profile._json.email;
+  if (profile.emails && profile.emails[0] && profile.emails[0].value) {
+    return profile.emails[0].value;
+  }
+  return "";
+};
+
+const profilePicture = profile => {
+  if (profile.picture) return profile.picture;
+  if (profile._json && profile._json.picture) return profile._json.picture;
+  if (profile.photos && profile.photos[0] && profile.photos[0].value) {
+    return profile.photos[0].value;
+  }
+  return "";
+};
+
 const googleCallback = async (
   req,
   accessToken,
@@ -34,24 +67,30 @@ const googleCallback = async (
       date.getMonth() + 1
     }-${date.getDate()}`;
 
-    const { email, given_name, picture } = profile;
+    const email = profileEmail(profile);
+    if (!email) {
+      return done(new Error("Google account has no email"), false);
+    }
+
+    const referer = getRequestReferer(req);
     const user = await User.findOne({ email });
     if (user) {
-      await User.findOneAndUpdate(
+      const updatedUser = await User.findOneAndUpdate(
         { email },
-        { referer: req.session.referer },
+        referer ? { referer } : {},
         { new: true }
       );
-      return done(null, user);
+      return done(null, updatedUser);
     }
     const password = await bcrypt.hash(shortid.generate(), 10);
     const newUser = await User.create({
-      email: email,
+      email,
       passwordHash: password,
-      username: given_name,
-      userAvatar: picture,
+      username: googleUsername({ ...profile, email }),
+      userAvatar: profilePicture(profile),
       dateCreate: today,
-      referer: req.session.referer,
+      referer: referer || "/",
+      verify: true,
     });
     return done(null, newUser);
   } catch (error) {

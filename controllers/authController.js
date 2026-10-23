@@ -5,7 +5,11 @@ const { User } = require("../models/user");
 const { Session } = require("../models/session");
 const { SECRET_KEY, REFRESH_SECRET_KEY } = process.env;
 
-const { RequestError } = require("../helpers");
+const {
+  RequestError,
+  getRequestReferer,
+  resolveFrontendUrl,
+} = require("../helpers");
 const { Product } = require("../models/product");
 
 const register = async (req, res, next) => {
@@ -186,15 +190,7 @@ const googleAuthController = async (req, res, next) => {
   try {
     const { _id: id, referer } = req.user;
     const paylaod = { id };
-
-    let senderUrl = "";
-    if (referer.includes("https://ydovzhyk.github.io")) {
-      senderUrl = "https://ydovzhyk.github.io/easy-shop/";
-    } else if (referer.includes("http://localhost:3000")) {
-      senderUrl = "http://localhost:3000/";
-    } else {
-      senderUrl = referer;
-    }
+    const senderUrl = resolveFrontendUrl(getRequestReferer(req) || referer);
 
     const accessToken = jwt.sign(paylaod, SECRET_KEY, { expiresIn: "12h" });
     const refreshToken = jwt.sign(paylaod, REFRESH_SECRET_KEY, {
@@ -204,9 +200,13 @@ const googleAuthController = async (req, res, next) => {
       uid: id,
     });
 
-    res.redirect(
-      `${senderUrl}?accessToken=${accessToken}&refreshToken=${refreshToken}&sid=${newSession._id}`
-    );
+    const params = new URLSearchParams({
+      accessToken,
+      refreshToken,
+      sid: String(newSession._id),
+    });
+
+    res.redirect(`${senderUrl}?${params.toString()}`);
   } catch (error) {
     next(error);
   }

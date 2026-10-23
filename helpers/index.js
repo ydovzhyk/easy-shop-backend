@@ -5,6 +5,7 @@ const processedFiles = require("./processedFiles");
 const sendMail = require("./sendMail");
 const sendTechnicialMail = require("./sendTechnicialMail");
 const createLink = require("./createLink");
+const frontendRedirect = require("./frontendRedirect");
 
 module.exports = {
   RequestError,
@@ -14,4 +15,5 @@ module.exports = {
   sendMail,
   sendTechnicialMail,
   createLink,
+  ...frontendRedirect,
 };
